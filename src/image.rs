@@ -77,7 +77,7 @@ impl Image for PixImage {
     let ind = 3 * self.index(x, y);
     let r = self.data[ind];
     let g = self.data[ind+1];
-    let b = self.data[ind+1];
+    let b = self.data[ind+2];
     Vec3::new(r, g, b)
   }
 }
