@@ -3,6 +3,10 @@ name = "yatsr"
 version = "0.1.0"
 edition = "2021"
 
+[[example]]
+name="basic_triangle"
+path="examples/1.basic/1.triangle/main.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
