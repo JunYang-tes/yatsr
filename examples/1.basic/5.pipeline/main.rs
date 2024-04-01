@@ -16,7 +16,9 @@ pub enum Fragment {
 pub trait Shader {
   // 计算顶点在屏幕（渲染结果图像）上的位置
   fn vertext(&mut self, model: &Model, face: usize, nth_vert: usize) -> Vec3<f32>;
-  // 对于三角形内部的每点调用fragment计算该点处的颜色
+  // 对于三角形内部的每点调用fragment计算该点处的颜色.
+  // 片元(Fragment) 既栅格化的三角形中的每一个点，如果没做超采样，那么这个点就是
+  // 像素，否则就是子像素,是否是像素对于Shader而言不重要
   fn fragment(
     &self,
     // 此点坐标
@@ -189,8 +191,8 @@ fn main() {
   let mut model = Model::from_file(model_path).expect("Failed to load model:,");
   model.normalize_verts();
   if !model.has_normal_vector() {
-      println!("This model don't includes any vertex");
-      std::process::exit(0)
+    println!("This model don't includes any vertex");
+    std::process::exit(0)
   }
   let width = 500;
   let height = 500;
@@ -226,4 +228,3 @@ fn main() {
   );
   save_image("./lambert.ppm", &image, PPM).expect("Failed to save image");
 }
-
