@@ -61,23 +61,29 @@ fn main() {
   let width = 500;
   let height = 500;
   let mut image = PixImage::new(500, 500);
-  let colors = [
-    Vec3::new(1., 0., 0.),
-    Vec3::new(0., 1., 0.),
-    Vec3::new(0., 0., 1.),
-    Vec3::new(1., 1., 0.),
-    Vec3::new(1., 0., 1.),
-    Vec3::new(0., 1., 1.),
-  ];
+  let light = Vec3::new(1., 1., 1.).normalize();
+  let color = Vec3::new(0.8, 0.8, 0.8);
+  // 模型由三角形构成，因此绘制模型的方式就是遍历模型中的三角形，并且绘制
+  // 这些三角形
   for n in 0..model.face_count() {
     let verts = model.verts_of_face(n);
+    let normal = (verts[1] - verts[0])
+      .cross_product(verts[2] - verts[0])
+      .normalize();
+    // Lambert 环境光模型，亮度正比于光线和法向量的夹角的余弦，
+    // 由于法向量和光线都是单位向量，所以亮度正比于光线和法向量的点积
+    // 这里的法向量由三角形顶点组成的两个向量的叉乘得到。
+    // 因为每个三角形都是同样的颜色，所以在绘制的结果中可以明显的观察
+    // 到模型由三角形构成
+    let intensity = (normal * light).max(0.);
+
     draw_triangle(
       &mut image,
       // 模型顶点坐标范围为[-1,1],将其映射到[0,500]
       world2screen(verts[0], width as f32, height as f32),
       world2screen(verts[1], width as f32, height as f32),
       world2screen(verts[2], width as f32, height as f32),
-      colors[n % colors.len()],
+      color * intensity,
     )
   }
   save_image("basic_draw_model.ppm", &image, PPM).expect("Failed to save image")
