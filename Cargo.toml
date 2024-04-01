@@ -7,6 +7,11 @@ edition = "2021"
 name="basic_triangle"
 path="examples/1.basic/1.triangle/main.rs"
 
+
+[[example]]
+name="basic_super_sampling"
+path="examples/1.basic/2.super-sampling/main.rs"
+
 [[example]]
 name="basic_draw_model"
 path="examples/1.basic/3.draw_model/main.rs"
