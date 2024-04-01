@@ -19,6 +19,9 @@ impl Model {
   pub fn face_count(&self) -> usize {
     self.face_vert_idx.len()
   }
+  pub fn has_normal_vector(&self) -> bool {
+    self.vert_normals.len() > 0
+  }
   pub fn normalize_verts(&mut self) {
     let first = self.verts[0];
     let mut min_x = first.x;
@@ -43,14 +46,14 @@ impl Model {
     }
 
     self.verts.iter_mut().for_each(|v| {
-      if max_x >1. || min_x< -1. {
+      if max_x > 1. || min_x < -1. {
         v.x = (v.x - min_x) / x * 2. - 1.0;
       }
-      if max_y >1. || min_y < -1. {
+      if max_y > 1. || min_y < -1. {
         v.y = (v.y - min_y) / y * 2. - 1.0;
       }
       if max_z > 1. || min_z < -1. {
-      v.z = (v.z - min_z) / z * 2. - 1.0;
+        v.z = (v.z - min_z) / z * 2. - 1.0;
       }
     });
     //
