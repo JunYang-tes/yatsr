@@ -11,6 +11,11 @@ path="examples/1.basic/1.triangle/main.rs"
 name="basic_draw_model"
 path="examples/1.basic/3.draw_model/main.rs"
 
+
+[[example]]
+name="basic_z_buffer"
+path="examples/1.basic/4.z-buffer/main.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
