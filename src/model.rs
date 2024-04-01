@@ -38,9 +38,6 @@ impl Model {
     let x = max_x - min_x;
     let y = max_y - min_y;
     let z = max_z - min_z;
-    println!("{} {}",min_x,max_x);
-    println!("{} {}",min_y,max_y);
-    println!("{} {}",min_z,max_z);
     if max_x <= 1. && min_x >= -1. && max_y <= 1. && max_y >= -1. && max_z <= 1. && max_z >= -1. {
       return;
     }
