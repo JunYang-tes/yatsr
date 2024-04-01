@@ -38,11 +38,23 @@ impl Model {
     let x = max_x - min_x;
     let y = max_y - min_y;
     let z = max_z - min_z;
+    println!("{} {}",min_x,max_x);
+    println!("{} {}",min_y,max_y);
+    println!("{} {}",min_z,max_z);
+    if max_x <= 1. && min_x >= -1. && max_y <= 1. && max_y >= -1. && max_z <= 1. && max_z >= -1. {
+      return;
+    }
 
     self.verts.iter_mut().for_each(|v| {
-      v.x = (v.x-min_x) / x * 2. - 1.0;
-      v.y = (v.y-min_y) / y * 2. - 1.0;
-      v.z = (v.z-min_z) / z * 2. - 1.0;
+      if max_x >1. || min_x< -1. {
+        v.x = (v.x - min_x) / x * 2. - 1.0;
+      }
+      if max_y >1. || min_y < -1. {
+        v.y = (v.y - min_y) / y * 2. - 1.0;
+      }
+      if max_z > 1. || min_z < -1. {
+      v.z = (v.z - min_z) / z * 2. - 1.0;
+      }
     });
     //
   }
