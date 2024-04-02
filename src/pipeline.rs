@@ -1,8 +1,13 @@
-use crate::{geometry::Vec3, image::Image, model::Model};
+use crate::{
+  geometry::{Vec3, Vec4},
+  image::Image,
+  model::Model,
+};
 
 pub enum Fragment {
   Discard,
   Color(Vec3<f32>),
+  Rgba(Vec4<f32>),
 }
 
 pub trait Shader {
@@ -20,13 +25,7 @@ pub trait Shader {
 
 type Point = Vec3<f32>;
 
-pub fn barycentric(
-  a: Vec3<f32>,
-  b: Vec3<f32>,
-  c: Vec3<f32>,
-  x: f32,
-  y: f32,
-) -> (f32, f32, f32) {
+pub fn barycentric(a: Vec3<f32>, b: Vec3<f32>, c: Vec3<f32>, x: f32, y: f32) -> (f32, f32, f32) {
   let alpha = ((b.x - x) * (c.y - b.y) + (y - b.y) * (c.x - b.x))
     / ((b.x - a.x) * (c.y - b.y) + (a.y - b.y) * (c.x - b.x));
   let beta = ((c.x - x) * (a.y - c.y) + (y - c.y) * (a.x - c.x))
@@ -51,7 +50,7 @@ fn draw_triangle<S: Shader, I: Image>(
   if super_sampling {
     for y in min_y..=max_y {
       for x in min_x..=max_x {
-        let mut color = Vec3::default();
+        let mut color = Vec4::default();
         let mut cnt = 0;
         for (dx, dy) in sub_pix_offset {
           let (alpha, beta, gamma) = barycentric(a, b, c, (x as f32) + dx, (y as f32) + dy);
@@ -61,10 +60,14 @@ fn draw_triangle<S: Shader, I: Image>(
           let p = a * alpha + b * beta + c * gamma;
           match shader.fragment(p, Vec3::new(alpha, beta, gamma)) {
             Fragment::Color(c) => {
+              color = color + Vec4::new(c.x, c.y, c.z, 1.);
+              cnt += 1;
+            }
+            Fragment::Rgba(c) => {
               color = color + c;
               cnt += 1;
             }
-            _ => {}
+            Fragment::Discard => {}
           }
         }
         if cnt > 0 {
@@ -73,7 +76,7 @@ fn draw_triangle<S: Shader, I: Image>(
           let index = (y * img.height() + x) as usize;
           if p.z > depth_buff[index] {
             depth_buff[index] = p.z;
-            img.set_rgb(x, y, color * (1. / cnt as f32))
+            img.blending(x, y, color * (1. / cnt as f32))
           }
         }
       }
@@ -93,6 +96,10 @@ fn draw_triangle<S: Shader, I: Image>(
             Fragment::Color(c) => {
               depth_buff[index] = p.z;
               img.set_rgb(x, y, c);
+            }
+            Fragment::Rgba(c) => {
+              depth_buff[index] = p.z;
+              img.blending(x, y, c);
             }
             Fragment::Discard => {}
           }
