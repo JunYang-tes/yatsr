@@ -24,6 +24,10 @@ path="examples/1.basic/4.z-buffer/main.rs"
 name="basic_pipeline"
 path="examples/1.basic/5.pipeline/main.rs"
 
+[[example]]
+name="basic_alpha"
+path="examples/1.basic/6.alpha/main.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
