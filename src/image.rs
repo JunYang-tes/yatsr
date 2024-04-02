@@ -2,6 +2,9 @@ use crate::geometry::Vec3;
 pub trait Image {
   fn width(&self) -> u32;
   fn height(&self) -> u32;
+  fn image_origin(&self) -> ImageOriginPos {
+    ImageOriginPos::LeftBottom
+  }
   /**
    * 约定图片原点在左下角
    * */
@@ -10,7 +13,10 @@ pub trait Image {
     let h = self.height() as usize;
     let x = x as usize;
     let y = y as usize;
-    (h - 1 - y) * w + x
+    match self.image_origin() {
+      ImageOriginPos::LeftBottom => (h - 1 - y) * w + x,
+      ImageOriginPos::LeftTop => y * w + x,
+    }
   }
   fn set_rgb24(&mut self, x: u32, y: u32, color: Vec3<u8>);
   fn set_rgb(&mut self, x: u32, y: u32, color: Vec3<f32>) {
@@ -35,10 +41,16 @@ pub trait Image {
     )
   }
 }
+#[derive(Clone,Copy)]
+pub enum ImageOriginPos {
+  LeftTop,
+  LeftBottom,
+}
 pub struct PixImage {
   pub width: u32,
   pub height: u32,
   pub(crate) data: Vec<u8>,
+  origin: ImageOriginPos,
 }
 impl PixImage {
   pub fn new(width: u32, height: u32) -> PixImage {
@@ -47,13 +59,15 @@ impl PixImage {
       width,
       height,
       data,
+      origin: ImageOriginPos::LeftBottom,
     }
   }
-  pub fn from_data(data: Vec<u8>, width: u32, height: u32) -> PixImage {
+  pub fn from_data(data: Vec<u8>, width: u32, height: u32, origin: ImageOriginPos) -> PixImage {
     PixImage {
       width,
       height,
       data,
+      origin,
     }
   }
 }
@@ -64,6 +78,9 @@ impl Image for PixImage {
 
   fn height(&self) -> u32 {
     self.height
+  }
+  fn image_origin(&self) -> ImageOriginPos {
+    self.origin
   }
 
   fn set_rgb24(&mut self, x: u32, y: u32, color: Vec3<u8>) {
@@ -76,8 +93,8 @@ impl Image for PixImage {
   fn get(&self, x: u32, y: u32) -> Vec3<u8> {
     let ind = 3 * self.index(x, y);
     let r = self.data[ind];
-    let g = self.data[ind+1];
-    let b = self.data[ind+2];
+    let g = self.data[ind + 1];
+    let b = self.data[ind + 2];
     Vec3::new(r, g, b)
   }
 }
