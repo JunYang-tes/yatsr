@@ -12,6 +12,8 @@
 
 [渲染管线](./examples/1.basic/5.pipeline/README.md)
 
+[alpha 混合](./examples/1.basic/6.alpha/README.md)
+
 ## 参考资料库
 
 Games 101
