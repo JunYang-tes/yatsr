@@ -159,32 +159,36 @@ fn decode_rle_true_color(header: &TAGHeader, data: Vec<u8>, index: &mut Index) -
     repetition = (repetition & 0b0111_1111) + 1;
     match ele_type {
       ElementType::RLPacket => {
-        let r = data[index.get_then_move()];
-        let g = data[index.get_then_move()];
         let b = data[index.get_then_move()];
-        if *depth == 32 {
-          // discard alpha
-          index.get_then_move();
-        }
+        let g = data[index.get_then_move()];
+        let r = data[index.get_then_move()];
+        let a = if *depth == 32 {
+          data[index.get_then_move()]
+        } else {
+          255
+        };
         for _ in 0..repetition {
-          ret.push(b);
-          ret.push(g);
           ret.push(r);
+          ret.push(g);
+          ret.push(b);
+          ret.push(a);
         }
         decoded += repetition as usize;
       }
       ElementType::RawPacket => {
         for _ in 0..repetition {
-          let r = data[index.get_then_move()];
-          let g = data[index.get_then_move()];
           let b = data[index.get_then_move()];
-          if *depth == 32 {
-            // discard alpha
-            index.get_then_move();
-          }
-          ret.push(b);
-          ret.push(g);
+          let g = data[index.get_then_move()];
+          let r = data[index.get_then_move()];
+          let a = if *depth == 32 {
+            data[index.get_then_move()]
+          } else {
+            255
+          };
           ret.push(r);
+          ret.push(g);
+          ret.push(b);
+          ret.push(a);
         }
         decoded += repetition as usize;
       }
@@ -210,7 +214,7 @@ fn decode_rle_black_white(header: &TAGHeader, data: Vec<u8>, index: &mut Index) 
     unimplemented!("other depth than 8 is not implemented");
   }
   let mut ret = Vec::with_capacity(
-    header.image_specification.width as usize * header.image_specification.height as usize * 3,
+    header.image_specification.width as usize * header.image_specification.height as usize * 4,
   );
   let mut decoded = 0;
   let total = (*width) as usize * (*height) as usize;
@@ -233,6 +237,7 @@ fn decode_rle_black_white(header: &TAGHeader, data: Vec<u8>, index: &mut Index) 
           ret.push(r);
           ret.push(r);
           ret.push(r);
+          ret.push(255);
         }
         decoded += repetition as usize;
       }
@@ -242,6 +247,7 @@ fn decode_rle_black_white(header: &TAGHeader, data: Vec<u8>, index: &mut Index) 
           ret.push(r);
           ret.push(r);
           ret.push(r);
+          ret.push(255);
         }
         decoded += repetition as usize;
       }
@@ -261,16 +267,23 @@ fn read_uncompressed_data(header: &TAGHeader, data: Vec<u8>, index: &mut Index) 
   }
 
   let mut ret = Vec::with_capacity(
-    (header.image_specification.width as usize) * (header.image_specification.height as usize) * 3,
+    (header.image_specification.width as usize) * (header.image_specification.height as usize) * 4,
   );
   for _ in 0..(header.image_specification.width as u32) * (header.image_specification.height as u32)
   {
     let b = data[index.get_then_move()];
     let g = data[index.get_then_move()];
     let r = data[index.get_then_move()];
+    let a = if depth == 32 {
+      data[index.get_then_move()]
+    } else {
+      255
+    };
+
     ret.push(r);
     ret.push(g);
     ret.push(b);
+    ret.push(a);
   }
   PixImage::from_data(
     ret,
