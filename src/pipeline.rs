@@ -73,7 +73,7 @@ fn draw_triangle<S: Shader, I: Image>(
         if cnt > 0 {
           let (alpha, beta, gamma) = barycentric(a, b, c, x as f32, y as f32);
           let p = a * alpha + b * beta + c * gamma;
-          let index = (y * img.height() + x) as usize;
+          let index = (y * img.width() + x) as usize;
           if p.z > depth_buff[index] {
             depth_buff[index] = p.z;
             img.blending(x, y, color * (1. / cnt as f32))
@@ -89,7 +89,7 @@ fn draw_triangle<S: Shader, I: Image>(
           continue;
         }
         let p = a * alpha + b * beta + c * gamma;
-        let index = (y * img.height() + x) as usize;
+        let index = (y * img.width() + x) as usize;
         if p.z > depth_buff[index] {
           // 通过Fragment shader 计算每个像素的颜色
           match shader.fragment(p, Vec3::new(alpha, beta, gamma)) {
