@@ -1,15 +1,21 @@
+use std::collections::HashMap;
 use std::io::*;
 use std::path::Path;
 
 //https://en.wikipedia.org/wiki/Wavefront_.obj_file
 use crate::geometry::Vec3;
 pub struct Model {
+  // 下面三个索引从1起有意义，obj文件定义的索引是从1起的
   verts: Vec<Vec3<f32>>,
-  vert_normals: Vec<Vec3<f32>>,
   texture_coords: Vec<Vec3<f32>>,
+  vert_normals: Vec<Vec3<f32>>,
+
   vert_normal_idx: Vec<Vec<i32>>,
   face_vert_idx: Vec<Vec<i32>>,
   face_texture_idx: Vec<Vec<i32>>,
+  // 某个顶点共享的面
+  faces_of_vert: HashMap<usize, Vec<usize>>,
+  computed_vert_normals: Vec<Vec3<f32>>,
 }
 
 impl Model {
@@ -20,7 +26,7 @@ impl Model {
     self.face_vert_idx.len()
   }
   pub fn has_normal_vector(&self) -> bool {
-    self.vert_normals.len() > 0
+    self.vert_normals.len() > 1
   }
   pub fn normalize_verts(&mut self) {
     let first = self.verts[0];
@@ -58,18 +64,20 @@ impl Model {
     });
     //
   }
+  fn get_vertex_index(&self, v_idx: i32) -> usize {
+    if v_idx >= 0 {
+      v_idx as usize
+    } else {
+      let last = self.verts.len() - 1;
+      (last as i32 + v_idx) as usize
+    }
+  }
   pub fn verts_of_face(&self, idx: usize) -> Vec<Vec3<f32>> {
     self.face_vert_idx[idx]
       .iter()
       .map(|v_idx| {
         let v_idx = *v_idx;
-        let v_idx = if v_idx >= 0 {
-          v_idx as usize
-        } else {
-          let last = self.verts.len() - 1;
-          (last as i32 - v_idx) as usize
-        };
-        self.verts[v_idx]
+        self.verts[self.get_vertex_index(v_idx)]
       })
       .collect()
   }
@@ -108,15 +116,21 @@ impl Model {
     };
     self.verts[v_idx]
   }
-  pub fn normal(&self, face: usize, vert: usize) -> Vec3<f32> {
+  fn get_normal_index(&self, face: usize, vert: usize) -> usize {
     let idx = self.vert_normal_idx[face][vert];
-    let idx = if idx >= 0 {
+    if idx >= 0 {
       idx as usize
     } else {
       let last = self.vert_normals.len() - 1;
-      (last as i32 - idx) as usize
-    };
-    self.vert_normals[idx]
+      (last as i32 + idx) as usize
+    }
+  }
+  pub fn normal(&self, face: usize, nth_vert: usize) -> Vec3<f32> {
+    if self.has_normal_vector() {
+      self.vert_normals[self.get_normal_index(face, nth_vert)]
+    } else {
+      self.computed_vert_normals[face * 3 + nth_vert]
+    }
   }
   pub fn from_file<P: AsRef<Path>>(file: P) -> std::io::Result<Model> {
     let mut verts = vec![Vec3::new(0., 0., 0.)];
@@ -126,6 +140,7 @@ impl Model {
     let mut face_vert_idx = Vec::new();
     let mut face_texture_idx = Vec::new();
     let mut vert_normal_idx = Vec::new();
+    let mut faces_of_vert = HashMap::new();
     let file = std::fs::File::open(file)?;
     BufReader::new(file).lines().for_each(|line| {
       if let Ok(line) = line {
@@ -137,6 +152,18 @@ impl Model {
           vert_normals.push(parse_vert_or_vn(line));
         } else if line.starts_with("f") {
           let (verts, vts, vns) = parse_face(line);
+          let face_idx = face_vert_idx.len();
+          for vertex_idx in &verts {
+            // 为了简单起见，假设所有顶点已经读取到了verts里面
+            let vertex_idx = if *vertex_idx > 0 {
+              *vertex_idx as usize
+            } else {
+              let last = (verts.len() - 1) as i32;
+              (last + (*vertex_idx as i32)) as usize
+            };
+            let faces = faces_of_vert.entry(vertex_idx).or_insert(Vec::new());
+            faces.push(face_idx)
+          }
           face_vert_idx.push(verts);
           face_texture_idx.push(vts);
           vert_normal_idx.push(vns);
@@ -145,14 +172,59 @@ impl Model {
         eprintln!("Readline error:{:?}", e);
       }
     });
-    Ok(Model {
+
+    let mut m = Model {
       verts,
       vert_normal_idx,
       vert_normals,
       face_vert_idx,
       face_texture_idx,
       texture_coords,
-    })
+      faces_of_vert,
+      computed_vert_normals: vec![],
+    };
+    //有些模型里没有定点的法响亮，那么计算出所有的顶点法向量备用
+    if !m.has_normal_vector() {
+      m.compute_vertex_normal();
+    }
+    Ok(m)
+  }
+  pub fn normal_of_face(&self, face: usize) -> Vec3<f32> {
+    let verts = self.verts_of_face(face);
+    return (verts[1] - verts[0])
+      .cross_product(verts[2] - verts[0])
+      .normalize();
+  }
+  fn compute_vertex_normal(&mut self) {
+    let mut computed_vert_normals = vec![Vec3::default(); self.face_count() * 3];
+    for vertex_idx in 1..self.verts.len() {
+      let faces = self.faces_of_vert.get(&(vertex_idx));
+      if let Some(faces) = faces {
+        let sum_vector = faces
+          .iter()
+          .map(|f| self.normal_of_face(*f))
+          .reduce(|acc, v| acc + v)
+          .unwrap();
+        let normal = sum_vector * (1. / (faces.len() as f32));
+        for face in faces {
+          let vertex_index = &self.face_vert_idx[*face];
+          let nth_vert = if vertex_idx == self.get_vertex_index(vertex_index[0]) {
+            0
+          } else if vertex_idx == self.get_vertex_index(vertex_index[1]) {
+            1
+          } else if vertex_idx == self.get_vertex_index(vertex_index[2]) {
+            2
+          } else {
+            panic!("")
+          };
+          computed_vert_normals[face * 3 + nth_vert] = normal;
+        }
+      } else {
+        println!("{}", vertex_idx);
+        panic!("No faces found, this is a bug")
+      }
+    }
+    self.computed_vert_normals = computed_vert_normals;
   }
 }
 fn parse_vt(line: String) -> Vec3<f32> {
