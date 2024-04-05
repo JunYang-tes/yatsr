@@ -32,6 +32,10 @@ path="examples/1.basic/6.alpha/main.rs"
 name="transform_2d"
 path="examples/2.transform/1.2d/main.rs"
 
+[[example]]
+name="transform_2d_matrix"
+path="examples/2.transform/2.2d-matrix/main.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
