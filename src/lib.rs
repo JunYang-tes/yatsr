@@ -1,7 +1,22 @@
+pub mod file;
 pub mod geometry;
 pub mod image;
-pub mod image_encoder;
 pub mod image_decoder;
-pub mod file;
+pub mod image_encoder;
+pub mod mat;
 pub mod model;
 pub mod pipeline;
+pub mod transform;
+pub mod prelude {
+  pub use crate::file::save_image;
+  pub use crate::geometry::{Vec3, Vec4};
+  pub use crate::image::{Image, PixImage};
+  pub use crate::image_encoder::{Encoder, PPM};
+  pub use crate::pipeline::{render, Fragment, Shader};
+  pub use crate::model::*;
+  pub use crate::mat::*;
+  pub use crate::transform::Transform;
+  pub mod transform {
+      pub use crate::transform::*;
+  }
+}
