@@ -41,6 +41,9 @@ path="examples/2.transform/2.2d-matrix/main.rs"
 [[example]]
 name="transform_3d_viewport"
 path="examples/2.transform/3.3d-viewport/main.rs"
+[[example]]
+name="transform_3d_rotation"
+path="examples/2.transform/4.3d-rotation/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
