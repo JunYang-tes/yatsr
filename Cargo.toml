@@ -27,6 +27,9 @@ path="examples/1.basic/5.pipeline/main.rs"
 [[example]]
 name="basic_alpha"
 path="examples/1.basic/6.alpha/main.rs"
+[[example]]
+name="basic_bitmap"
+path="examples/1.basic/7.bitmap-font/main.rs"
 
 [[example]]
 name="transform_2d"
