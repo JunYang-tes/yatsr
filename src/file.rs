@@ -10,3 +10,4 @@ pub fn save_image<P: AsRef<Path>, E: Encoder, I: crate::image::Image>(
   let encoded = encoder.encode(img);
   std::fs::write(path, encoded)
 }
+

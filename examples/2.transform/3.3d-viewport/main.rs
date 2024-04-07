@@ -36,6 +36,10 @@ fn main() {
     .unwrap_or(String::from("./models/spot/spot_triangulated.obj"));
   let mut model = Model::from_file(model_path).expect("Failed to load model:,");
   model.normalize_verts();
+  let cal_lite = yatsr::font::get_cal_lite();
+  cal_lite.draw_text(&mut img,0,20,4,Vec3::new(1.,1.,1.),"Fig. 1");
+
+
   let mut depth_buffer = vec![f32::MIN; (img.width() * img.height()) as usize];
   render(
     &mut img,
@@ -52,6 +56,8 @@ fn main() {
     &model,
     false,
   );
+
+  cal_lite.draw_text(&mut img,500,20,4,Vec3::new(1.,1.,1.),"Fig. 2");
   render(
     &mut img,
     &mut depth_buffer,
