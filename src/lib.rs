@@ -21,4 +21,6 @@ pub mod prelude {
       pub use crate::transform::*;
   }
   pub use crate::font::get_cal_lite;
+  pub use crate::shaders;
 }
+pub mod shaders;
