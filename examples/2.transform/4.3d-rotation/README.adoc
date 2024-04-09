@@ -1,1 +1,0 @@
-image::./rotation.svg[rotation,300,300]
