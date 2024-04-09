@@ -45,6 +45,11 @@ path="examples/2.transform/3.3d-viewport/main.rs"
 name="transform_3d_rotation"
 path="examples/2.transform/4.3d-rotation/main.rs"
 
+[[example]]
+# 变换法向量
+name="transform_3d_normal_transform"
+path="examples/2.transform/4.3d-rotation/normal.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
