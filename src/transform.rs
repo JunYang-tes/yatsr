@@ -54,6 +54,13 @@ pub fn rotate_y(angle: f32) -> Mat4 {
   m
 }
 
+pub fn viewport(w: f32, h: f32) -> Mat4 {
+  Transform::new()
+    .translate(1., 1., 0.)
+    .scale(w / 2., h / 2., 1.)
+    .build()
+}
+
 pub struct Transform {
   mat: Mat4,
 }
