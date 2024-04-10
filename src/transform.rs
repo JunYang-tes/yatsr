@@ -1,4 +1,4 @@
-use crate::mat::Mat4;
+use crate::{mat::Mat4, prelude::Vec3};
 pub fn scale(sx: f32, sy: f32, sz: f32) -> Mat4 {
   #[rustfmt::skip]
   let m = Mat4([sx,0.,0.,0.,
@@ -53,6 +53,22 @@ pub fn rotate_y(angle: f32) -> Mat4 {
                 0.,0.,0.,1. ]);
   m
 }
+pub fn rotate(u:Vec3<f32>,angle:f32)->Mat4 {
+
+  let x = Vec3::new(1., 0., 0.);
+  let u = u.normalize();
+  let v = x.cross_product(u).normalize();
+  let w = u.cross_product(v).normalize();
+  #[rustfmt::skip]
+  let m = Mat4([
+    u.x,u.y,u.z,0.,
+    v.x,v.y,v.z,0.,
+    w.x,w.y,w.z,0.,
+    0.,0.,0.,1.
+  ]);
+  // uvw 是一组正交向量，因此M是正交矩阵，所以M的转置就是M的逆
+  &m.transpose() * &(&rotate_x(angle) * &m)
+}
 
 pub fn viewport(w: f32, h: f32) -> Mat4 {
   Transform::new()
@@ -88,6 +104,10 @@ impl Transform {
   }
   pub fn rotate_z(mut self, angle: f32) -> Transform {
     self.mat = &rotate_z(angle) * &self.mat;
+    self
+  }
+  pub fn rotate(mut self, u:Vec3<f32>,angle:f32)->Transform {
+    self.mat = &rotate(u,angle) * &self.mat;
     self
   }
   pub fn build(self) -> Mat4 {
