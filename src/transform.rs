@@ -110,7 +110,15 @@ impl Transform {
     self.mat = &rotate(u,angle) * &self.mat;
     self
   }
-  pub fn build(self) -> Mat4 {
-    self.mat
+  pub fn then(mut self,other:&Transform)->Transform {
+    self.mat = &other.build() * &self.mat;
+    self
+  }
+  pub fn then_mat(mut self,other:&Mat4) -> Transform {
+    self.mat = other * &self.mat;
+    self
+  }
+  pub fn build(&self) -> Mat4 {
+    self.mat.clone()
   }
 }
