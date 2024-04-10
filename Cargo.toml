@@ -52,6 +52,9 @@ path="examples/2.transform/4.3d-rotation/normal.rs"
 [[example]]
 name="transform_arbitrary_rotation"
 path="examples/2.transform/5.arbitrary-rotation/main.rs"
+[[example]]
+name="transform_orthographic_projection"
+path="examples/2.transform/6.orthographic-projection/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
