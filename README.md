@@ -24,6 +24,8 @@
 
 [基本空间旋转](./examples/2.transform/4.3d-rotation/README.md)
 
+[绕任意向量旋转](./examples/2.transform/5.arbitrary-rotation/README.md)
+
 ## 参考资料库
 
 Games 101
