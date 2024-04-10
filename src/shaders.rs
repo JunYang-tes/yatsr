@@ -6,11 +6,11 @@ use crate::{
 };
 
 pub struct FlatShader {
-  uniform_mat: Mat4,
-  uniform_vp: Mat4,
-  uniform_light: Vec3<f32>,
-  color: Vec3<f32>,
-  varying_color: Vec3<f32>,
+ pub uniform_mat: Mat4,
+ pub uniform_vp: Mat4,
+ pub uniform_light: Vec3<f32>,
+ pub color: Vec3<f32>,
+ pub varying_color: Vec3<f32>,
 }
 impl FlatShader {
   pub fn new(w: f32, h: f32) -> FlatShader {
