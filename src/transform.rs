@@ -70,6 +70,18 @@ pub fn rotate(u:Vec3<f32>,angle:f32)->Mat4 {
   &m.transpose() * &(&rotate_x(angle) * &m)
 }
 
+
+pub fn orthographic(left: f32, right: f32, bottom: f32, top: f32, far: f32, near: f32) -> Mat4 {
+  Transform::new()
+    //[left,right]x[bottom,top]x[far,near] => [0,right-left]x[0,top-bottom]x[0,near - far]
+    .translate(-left, -bottom, -far)
+    //[0,right-left]x[0,top-bottom]x[0,near - far] => [0,2]x[0,2]x[0,2]
+    .scale(2. / (right - left), 2. / (top - bottom), 2. / (near - far))
+    //[0,2]x[0,2]x[0,2] => [0,1]x[0,1]x[0,1]
+    .translate(-1., -1., -1.)
+    .build()
+}
+
 pub fn viewport(w: f32, h: f32) -> Mat4 {
   Transform::new()
     .translate(1., 1., 0.)
