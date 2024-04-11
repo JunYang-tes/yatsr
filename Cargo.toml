@@ -62,3 +62,4 @@ path="examples/2.transform/7.viewing/main.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+sdl2 = "0.36.0"

@@ -8,6 +8,7 @@ pub mod model;
 pub mod pipeline;
 pub mod transform;
 pub mod font;
+pub mod sdl;
 pub mod prelude {
   pub use crate::file::save_image;
   pub use crate::geometry::{Vec3, Vec4};

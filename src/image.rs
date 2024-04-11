@@ -133,3 +133,32 @@ impl Image for PixImage {
     self.data[ind + 3] = color.w;
   }
 }
+impl Image for (&mut [u8], u32, u32) {
+  fn width(&self) -> u32 {
+    self.1
+  }
+
+  fn height(&self) -> u32 {
+    self.2
+  }
+
+  fn set_rgba32(&mut self, x: u32, y: u32, color: Vec4<u8>) {
+    if x >= self.width() || y >= self.height() {
+      return;
+    }
+    let ind = 4 * self.index(x, y);
+    self.0[ind] = color.x;
+    self.0[ind + 1] = color.y;
+    self.0[ind + 2] = color.z;
+    self.0[ind + 3] = color.w;
+  }
+
+  fn get_rgba(&self, x: u32, y: u32) -> Vec4<u8> {
+    let ind = 4 * self.index(x, y);
+    let r = self.0[ind];
+    let g = self.0[ind + 1];
+    let b = self.0[ind + 2];
+    let a = self.0[ind + 3];
+    Vec4::new(r, g, b, a)
+  }
+}
