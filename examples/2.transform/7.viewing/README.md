@@ -31,8 +31,8 @@ M[[x'_x,up_x,lo​oki​ng_x ],
 <!--
 M = [[1,0,0],[0,1,0],[0,0,-1]][
 [x'_x,x'_y,x'_z],
-[lo​oki​ng_x,lo​oki​ng_y,lo​oki​ng_z],
-[up_x,up_y,up_z]
+[up_x,up_y,up_z],
+[lo​oki​ng_x,lo​oki​ng_y,lo​oki​ng_z]
 ]
 -->
 ![](./4.svg)
@@ -74,3 +74,26 @@ let c2 = camera1(
 cargo run --example transform_viewing -- c2
 ```
 
+### 如果up和look不正交
+
+如果up和look不正交，那么将 x' up look 变换到xyz不是一个简单的旋转，[x',up,look]的逆也不是简单的转置就能得到的。变换后的up 和look 变得正交，以此模型经过同样的变换后就会变形。因此如果up和look不正交，就不能直接使用它们。而是要从它们出发构建一个正交的基。
+<!--
+{(x'=lo​ok x up),(y'=x' x lo​ok),(z'=lo​ok);}
+-->
+
+y' 做为新的上方向，和原来的up大致一致。z' 做为新的look和原来look一样。为什么不用look 叉 x' 来做新的上方向呢？因为那样就和原来的上方向差的太远了.
+
+```rust
+
+let c2 = camera2(
+  Vec3::new(0., 1., 0.), // up
+  Vec3::new(-1., -1., -1.), // looking
+  Vec3::new(0., 0., 0.), // e
+);
+```
+![](./3.png)
+```
+cargo run --example transform_viewing -- c3
+```
+
+直接给出一个向量来表示看向的方向，有时候可能不太直观，因此在API的设计上，可以指定上方向，位置，和看向哪个点，那么看向的方向就是看向的点减去位置。

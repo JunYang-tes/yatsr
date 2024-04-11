@@ -11,6 +11,18 @@ fn camera1(up: Vec3<f32>, looking: Vec3<f32>, pos: Vec3<f32>) -> Mat4 {
     ]);
   &m * &t
 }
+fn camera2(up: Vec3<f32>, looking: Vec3<f32>, pos: Vec3<f32>) -> Mat4 {
+  let up = up.normalize();
+  let looking = looking.normalize();
+  let x_ = looking.cross_product(up);
+  let up = x_.cross_product(looking);
+  camera1(up, looking, pos)
+}
+
+fn camera3(up: Vec3<f32>, pos: Vec3<f32>, lookat: Vec3<f32>) -> Mat4 {
+  camera2(up, lookat - pos, pos)
+}
+
 fn main() {
   let which_camera = std::env::args()
     .collect::<Vec<_>>()
@@ -33,9 +45,15 @@ fn main() {
     Vec3::new(-1., 0., 0.),
     Vec3::new(0., 0., 0.),
   );
+  let c3 = camera2(
+    Vec3::new(0., 1., 0.),
+    Vec3::new(-1., -1., -1.),
+    Vec3::new(0., 0., 0.),
+  );
   let c = match which_camera.as_str() {
     "c1" => c1,
     "c2" => c2,
+    "c3" => c3,
     _ => c1,
   };
 
