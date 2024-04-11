@@ -2,6 +2,8 @@
 本项目大部分示例输出PPM格式的图片。
 
 ## 示例
+
+### 基础
 [绘制三角形](./examples/1.basic/1.triangle/README.md)
 
 [超采样](./examples/1.basic/2.super-sampling/README.md)
@@ -16,6 +18,8 @@
 
 [点阵字体渲染](./examples/1.basic/7.bitmap-font/README.md)
 
+### 变换
+
 [2D 变换](./examples/2.transform/1.2d/README.md)
 
 [2D Matrix](./examples/2.transform/2.2d-matrix/READMM.md)
@@ -25,6 +29,8 @@
 [基本空间旋转](./examples/2.transform/4.3d-rotation/README.md)
 
 [绕任意向量旋转](./examples/2.transform/5.arbitrary-rotation/README.md)
+
+[正交投影](./examples/2.transform/6.orthographic-projection/README.md)
 
 ## 参考资料库
 
