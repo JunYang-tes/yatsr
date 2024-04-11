@@ -89,6 +89,22 @@ pub fn viewport(w: f32, h: f32) -> Mat4 {
     .build()
 }
 
+pub fn camera(up:Vec3<f32>,pos:Vec3<f32>,lookat:Vec3<f32>) -> Mat4 {
+  let up = up.normalize();
+  let looking = (lookat - pos).normalize();
+  let x_ = looking.cross_product(up);
+  let up = x_.cross_product(looking);
+  let t = translate(-pos.x, -pos.y, -pos.z);
+  #[rustfmt::skip]
+  let m = Mat4([
+      x_.x,x_.y,x_.z,0.,
+      up.x,up.y,up.z,0.,
+      -looking.x,-looking.y,-looking.z,0.,
+      0.,0.,0.,1.
+    ]);
+  &m * &t
+}
+
 pub struct Transform {
   mat: Mat4,
 }
