@@ -1,8 +1,6 @@
 use sdl2::{event::Event, keyboard::Keycode, pixels::PixelFormatEnum, rect::Rect};
 
-pub fn frame<F:FnMut((&mut [u8],u32,u32))->()>(
-    title:&str,
-    w: u32, h: u32,mut draw:F) {
+pub fn frame<F: FnMut((&mut [u8], u32, u32), f32) -> ()>(title: &str, w: u32, h: u32, mut draw: F) {
   let sdl_context = sdl2::init().unwrap();
   let video_subsystem = sdl_context.video().unwrap();
   let window = video_subsystem
@@ -21,7 +19,9 @@ pub fn frame<F:FnMut((&mut [u8],u32,u32))->()>(
     )
     .expect("Failed to create texture");
   let mut event_pump = sdl_context.event_pump().unwrap();
+  let mut fps = 0.;
   'running: loop {
+    let start = std::time::Instant::now();
     for event in event_pump.poll_iter() {
       match event {
         Event::Quit { .. }
@@ -34,21 +34,19 @@ pub fn frame<F:FnMut((&mut [u8],u32,u32))->()>(
     }
     texture
       .with_lock(Rect::new(0, 0, w, h), |data, _| {
-          data.fill(0);
-          let img = (data,w,h);
-          draw(img)
+        data.fill(0);
+        let img = (data, w, h);
+        draw(img,fps);
       })
       .unwrap();
 
     canvas
-      .copy(
-        &texture,
-        Rect::new(0, 0, w, h),
-        Rect::new(0, 0, w, h),
-      )
+      .copy(&texture, Rect::new(0, 0, w, h), Rect::new(0, 0, w, h))
       .unwrap();
 
     canvas.present();
+    let duration = start.elapsed();
+    fps = 1000. / (duration.as_millis() as f32);
     //::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
   }
 }
