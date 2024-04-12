@@ -80,6 +80,7 @@ cargo run --example transform_viewing -- c2
 <!--
 {(x'=lo​ok x up),(y'=x' x lo​ok),(z'=lo​ok);}
 -->
+![](./5.svg)
 
 y' 做为新的上方向，和原来的up大致一致。z' 做为新的look和原来look一样。为什么不用look 叉 x' 来做新的上方向呢？因为那样就和原来的上方向差的太远了.
 
@@ -97,3 +98,6 @@ cargo run --example transform_viewing -- c3
 ```
 
 直接给出一个向量来表示看向的方向，有时候可能不太直观，因此在API的设计上，可以指定上方向，位置，和看向哪个点，那么看向的方向就是看向的点减去位置。
+
+相机绕y旋转的例子：
+![](./moving_camera.gif)
