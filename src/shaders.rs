@@ -54,7 +54,8 @@ impl Shader for FlatShader {
     if nth_vert == 0 {
       let normal = model.normal_of_face(face);
       let normal = &self.uniform_model.invert().transpose() * &normal;
-      self.varying_color = self.color * (normal * self.uniform_light).max(0.);
+      self.varying_color =
+        Vec3::new(0.1, 0.1, 0.1) + self.color * (normal * self.uniform_light).max(0.);
     }
     let v = model.vert(face, nth_vert);
     &crate::transform::Transform::new()
