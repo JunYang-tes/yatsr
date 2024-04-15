@@ -128,3 +128,18 @@ fn perspective(left: f32, right: f32, bottom: f32, top: f32, far: f32, near: f32
 
 ```
 
+### fov
+
+用6个平面的方式指定透视投影的截锥体并不是很方便，业内实践上常用的方式是视野（field of view，fov）、宽高比、以及近远平面来指定。
+
+视野指的是垂直（或水平）的可视角度是多少，这里用垂直视野。根据这个角度可以通过三角函数求出高，通过高可以得到top和bottom，通过高和宽高比可以求的left,right.
+
+不同的fov渲染结果对比：
+
+```shell
+cargo run --example transform_perspective_fov
+```
+
+![](./fov.png)
+
+
