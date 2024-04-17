@@ -10,7 +10,7 @@ fn main() {
   let mut depth_buffer = vec![f32::MIN; 500 * 500];
   frame("hello", 500, 500, move |mut img, fps| {
     depth_buffer.fill(f32::MIN);
-    let pos = &transform::rotate_y(angle) * &Vec3::new(0., 0., 2.);
+    let pos = &transform::rotate_y(angle) * &Vec3::new(0., 2., 2.);
     render(
       &mut img,
       &mut depth_buffer,
