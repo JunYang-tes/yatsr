@@ -53,8 +53,7 @@ pub fn rotate_y(angle: f32) -> Mat4 {
                 0.,0.,0.,1. ]);
   m
 }
-pub fn rotate(u:Vec3<f32>,angle:f32)->Mat4 {
-
+pub fn rotate(u: Vec3<f32>, angle: f32) -> Mat4 {
   let x = Vec3::new(1., 0., 0.);
   let u = u.normalize();
   let v = x.cross_product(u).normalize();
@@ -69,7 +68,6 @@ pub fn rotate(u:Vec3<f32>,angle:f32)->Mat4 {
   // uvw 是一组正交向量，因此M是正交矩阵，所以M的转置就是M的逆
   &m.transpose() * &(&rotate_x(angle) * &m)
 }
-
 
 pub fn orthographic(left: f32, right: f32, bottom: f32, top: f32, far: f32, near: f32) -> Mat4 {
   Transform::new()
@@ -89,7 +87,7 @@ pub fn viewport(w: f32, h: f32) -> Mat4 {
     .build()
 }
 
-pub fn camera(up:Vec3<f32>,pos:Vec3<f32>,lookat:Vec3<f32>) -> Mat4 {
+pub fn camera(up: Vec3<f32>, pos: Vec3<f32>, lookat: Vec3<f32>) -> Mat4 {
   let up = up.normalize();
   let looking = (lookat - pos).normalize();
   let x_ = looking.cross_product(up);
@@ -103,6 +101,24 @@ pub fn camera(up:Vec3<f32>,pos:Vec3<f32>,lookat:Vec3<f32>) -> Mat4 {
       0.,0.,0.,1.
     ]);
   &m * &t
+}
+
+fn perspective(fov: f32, aspect_ratio: f32, near: f32, far: f32) -> Mat4 {
+  let h = -near * (fov * std::f32::consts::PI / 180. / 2.).tan();
+  let top = h;
+  let bottom = -h;
+  let w = aspect_ratio * h;
+  let left = -w;
+  let right = w;
+
+  #[rustfmt::skip]
+    let m = Mat4([
+      near, 0.,  0.,  0.,
+      0.,near ,  0.,  0.,
+      0.,0.,  near+far ,-far*near,
+      0.,0.,  1.,  0.
+    ]);
+  &orthographic(left, right, bottom, top, far, near) * &m
 }
 
 pub struct Transform {
@@ -134,15 +150,15 @@ impl Transform {
     self.mat = &rotate_z(angle) * &self.mat;
     self
   }
-  pub fn rotate(mut self, u:Vec3<f32>,angle:f32)->Transform {
-    self.mat = &rotate(u,angle) * &self.mat;
+  pub fn rotate(mut self, u: Vec3<f32>, angle: f32) -> Transform {
+    self.mat = &rotate(u, angle) * &self.mat;
     self
   }
-  pub fn then(mut self,other:&Transform)->Transform {
+  pub fn then(mut self, other: &Transform) -> Transform {
     self.mat = &other.build() * &self.mat;
     self
   }
-  pub fn then_mat(mut self,other:&Mat4) -> Transform {
+  pub fn then_mat(mut self, other: &Mat4) -> Transform {
     self.mat = other * &self.mat;
     self
   }
