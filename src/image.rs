@@ -71,7 +71,7 @@ pub trait Image {
     )
   }
 }
-#[derive(Clone, Copy)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum ImageOriginPos {
   LeftTop,
   LeftBottom,
@@ -100,7 +100,18 @@ impl PixImage {
       origin,
     }
   }
+  pub fn flip_y(&self) -> PixImage {
+    let mut img = PixImage::new(self.width(), self.height());
+    for row in 0..img.height {
+      for col in 0..img.width {
+        let color = self.get_rgba(col, row);
+        img.set_rgba32(col, img.height - row - 1, color);
+      }
+    }
+    img
+  }
 }
+
 impl Image for PixImage {
   fn width(&self) -> u32 {
     self.width
