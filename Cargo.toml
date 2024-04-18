@@ -68,6 +68,10 @@ path="examples/2.transform/8.perspective-projection/main.rs"
 name="transform_perspective_fov"
 path="examples/2.transform/8.perspective-projection/fov.rs"
 
+[[example]]
+name="texture_diffuse"
+path="examples/3.texture/1.diffuse/main.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
