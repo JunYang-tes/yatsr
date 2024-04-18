@@ -1,7 +1,7 @@
 use std::{fmt::Display, ops::*};
 
 use crate::geometry::{Vec3, Vec4};
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct Mat4(pub [f32; 16]);
 impl Mat4 {
   pub fn zero() -> Mat4 {
@@ -49,7 +49,7 @@ impl Mat4 {
     for r in 0..4 {
       for c in 0..4 {
         let m = sub_mat(&self.0, 4, r, c);
-        let sign = i32::pow(-1,(r+c) as u32) as f32;
+        let sign = i32::pow(-1, (r + c) as u32) as f32;
         ret.set(r, c, sign * det(m.as_slice(), 3) / d);
       }
     }
@@ -147,6 +147,13 @@ impl Mul for Mat4 {
     Mat4(r)
   }
 }
+impl<'a> Mul<&'a Mat4> for Mat4 {
+  type Output = Mat4;
+
+  fn mul(self, rhs: &'a Mat4) -> Self::Output {
+    self * (rhs.clone())
+  }
+}
 impl<'a> Mul<&'a Mat4> for &'a Mat4 {
   type Output = Mat4;
   fn mul(self, rhs: Self) -> Self::Output {
@@ -159,4 +166,3 @@ impl<'a> Mul<&'a Mat4> for &'a Mat4 {
     Mat4(r)
   }
 }
-
