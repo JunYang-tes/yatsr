@@ -1,0 +1,2 @@
+![](./mosaic.png)
+![](./bilinear.png)

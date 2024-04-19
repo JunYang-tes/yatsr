@@ -74,6 +74,9 @@ path="examples/3.texture/1.diffuse/main.rs"
 [[example]]
 name="texture_mosaic"
 path="examples/3.texture/2.bilinear/mosaic.rs"
+[[example]]
+name="texture_bilinear"
+path="examples/3.texture/2.bilinear/bilinear.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
