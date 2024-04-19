@@ -42,6 +42,7 @@ impl<'a, O: yatsr::model::Model> Shader<O> for MyShader<'a> {
 
 fn main() {
   let model = Object::from_file("./models/spot/spot_triangulated.obj").unwrap();
+  let model = shape::Plane::new();
   let texture = util::load_image("./models/spot/spot_texture.tga");
   let texture = if texture.image_origin() == yatsr::image::ImageOriginPos::LeftTop {
     texture.flip_y()
