@@ -46,6 +46,14 @@ pub trait Image {
     let rgba = self.get_rgba(x, y);
     Vec3::new(rgba.x, rgba.y, rgba.z)
   }
+  fn get_rgbf(&self, x: u32, y: u32) -> Vec3<f32> {
+    let rgba = self.get_rgba(x, y);
+    Vec3::new(
+      rgba.x as f32 / 255.,
+      rgba.y as f32 / 255.,
+      rgba.z as f32 / 255.,
+    )
+  }
   fn get_rgba(&self, x: u32, y: u32) -> Vec4<u8>;
   fn get_rgbaf(&self, x: u32, y: u32) -> Vec4<f32> {
     let rgba = self.get_rgba(x, y);
