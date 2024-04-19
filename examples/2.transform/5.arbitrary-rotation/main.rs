@@ -8,8 +8,8 @@ impl FlatShader {
     FlatShader(yatsr::shaders::FlatShader::with_transform(mat, w, h))
   }
 }
-impl Shader for FlatShader {
-  fn vertext(&mut self, model: &Model, face: usize, nth_vert: usize) -> Vec3<f32> {
+impl<M:Model> Shader<M> for FlatShader {
+  fn vertext(&mut self, model: &M, face: usize, nth_vert: usize) -> Vec3<f32> {
     let p = self.0.vertext(model, face, nth_vert);
     // 让立方体的每面都有一个相同的颜色，以便观察旋转
     self.0.varying_color = model.normal(face, nth_vert);
@@ -23,7 +23,7 @@ impl Shader for FlatShader {
     // 此点处的质心坐标
     bar: Vec3<f32>,
   ) -> Fragment {
-    self.0.fragment(pos, bar)
+    <yatsr::shaders::FlatShader as yatsr::pipeline::Shader<M>>::fragment(&self.0, pos, bar)
   }
 }
 
@@ -49,7 +49,7 @@ fn main() {
     .get(1)
     .map(|f| f.clone())
     .unwrap_or(String::from("./models/cube/cube.obj"));
-  let mut model = Model::from_file(model_path).expect("Failed to load model:,");
+  let mut model = Object::from_file(model_path).expect("Failed to load model:,");
   model.normalize_verts();
   let cal = get_cal_lite();
   for i in 0..10 {

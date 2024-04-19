@@ -25,7 +25,7 @@ struct Mats {
   viewport: Mat4,
 }
 
-fn draw(models: &[(&Model, Mats)], img: &mut PixImage) {
+fn draw(models: &[(&Object, Mats)], img: &mut PixImage) {
   let mut depth_buffer = vec![f32::MIN; (img.width() * img.height()) as usize];
   for (model, mats) in models {
     render(
@@ -45,9 +45,9 @@ fn draw(models: &[(&Model, Mats)], img: &mut PixImage) {
 
 fn main() {
   let mut image = PixImage::new(1500, 500);
-  let cube = Model::from_file("./models/cube/cube.obj").expect("Failed to load model:,");
+  let cube = Object::from_file("./models/cube/cube.obj").expect("Failed to load model:,");
   let model =
-    Model::from_file("./models/spot/spot_triangulated.obj").expect("Failed to load model:,");
+    Object::from_file("./models/spot/spot_triangulated.obj").expect("Failed to load model:,");
   let camera = transform::camera(
     Vec3::new(0., 1., 0.),
     Vec3::new(4., 4., 0.),

@@ -7,9 +7,10 @@ struct MyShader<'a> {
   varying_uvs: [Vec3<f32>; 3],
   varying_normals: [Vec3<f32>; 3],
 }
-impl<'a> Shader for MyShader<'a> {
-  fn vertext(&mut self, model: &Model, face: usize, nth_vert: usize) -> Vec3<f32> {
+impl<'a, O: yatsr::model::Model> Shader<O> for MyShader<'a> {
+  fn vertext(&mut self, model: &O, face: usize, nth_vert: usize) -> Vec3<f32> {
     let normal = model.normal(face, nth_vert);
+    // 从模型中获取该顶点的纹理坐标
     let uv = model.texture_coord(face, nth_vert);
     self.varying_normals[nth_vert] = &self.invert_transpose * &normal;
     self.varying_uvs[nth_vert] = uv;
@@ -24,14 +25,15 @@ impl<'a> Shader for MyShader<'a> {
     // 此点处的质心坐标
     bar: Vec3<f32>,
   ) -> Fragment {
-    let uv =
-      self.varying_uvs[0] * bar.x + self.varying_uvs[1] * bar.y + self.varying_uvs[2] * bar.z;
     let normal = (self.varying_normals[0] * bar.x
       + self.varying_normals[1] * bar.y
       + self.varying_normals[2] * bar.z)
       .normalize();
     let i = (normal * Vec3::new(1., 1., 0.).normalize()).max(0.);
 
+    // 通过对顶点纹理坐标插值，得到该点的纹理坐标
+    let uv =
+      self.varying_uvs[0] * bar.x + self.varying_uvs[1] * bar.y + self.varying_uvs[2] * bar.z;
     let color = self.texture.get_vec3f(uv.x, uv.y) // 用texture做为该点的颜色
         * i; // 乘以此处光的强度
     Fragment::Color(color)
@@ -39,7 +41,7 @@ impl<'a> Shader for MyShader<'a> {
 }
 
 fn main() {
-  let model = Model::from_file("./models/spot/spot_triangulated.obj").unwrap();
+  let model = Object::from_file("./models/spot/spot_triangulated.obj").unwrap();
   let texture = util::load_image("./models/spot/spot_texture.tga");
   let texture = if texture.image_origin() == yatsr::image::ImageOriginPos::LeftTop {
     texture.flip_y()

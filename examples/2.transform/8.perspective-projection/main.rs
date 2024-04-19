@@ -11,9 +11,9 @@ fn perspective(left: f32, right: f32, bottom: f32, top: f32, far: f32, near: f32
 }
 
 fn main() {
-  let cube = Model::from_file("./models/cube/cube.obj").expect("Failed to load model:,");
+  let cube = Object::from_file("./models/cube/cube.obj").expect("Failed to load model:,");
   let model =
-    Model::from_file("./models/spot/spot_triangulated.obj").expect("Failed to load model:,");
+    Object::from_file("./models/spot/spot_triangulated.obj").expect("Failed to load model:,");
   let mut angle = 0.;
   let font = get_cal_lite();
   let p = perspective(-1., 1., -1., 1., -3., -1.);

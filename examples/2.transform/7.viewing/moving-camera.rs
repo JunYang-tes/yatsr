@@ -4,7 +4,7 @@ use yatsr::shaders::FlatShader;
 fn main() {
   let font = get_cal_lite();
   let model =
-    Model::from_file("./models/spot/spot_triangulated.obj").expect("Failed to load model:,");
+    Object::from_file("./models/spot/spot_triangulated.obj").expect("Failed to load model:,");
   let mut angle = 0.;
 
   let mut depth_buffer = vec![f32::MIN; 500 * 500];

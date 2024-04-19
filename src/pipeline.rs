@@ -1,7 +1,7 @@
 use crate::{
   geometry::{Vec3, Vec4},
   image::Image,
-  model::Model,
+  model::Object,
 };
 
 pub enum Fragment {
@@ -10,9 +10,9 @@ pub enum Fragment {
   Rgba(Vec4<f32>),
 }
 
-pub trait Shader {
+pub trait Shader<M: crate::model::Model> {
   // 计算顶点在屏幕（渲染结果图像）上的位置
-  fn vertext(&mut self, model: &Model, face: usize, nth_vert: usize) -> Vec3<f32>;
+  fn vertext(&mut self, model: &M, face: usize, nth_vert: usize) -> Vec3<f32>;
   // 对于三角形内部的每点调用fragment计算该点处的颜色
   fn fragment(
     &self,
@@ -33,7 +33,7 @@ pub fn barycentric(a: Vec3<f32>, b: Vec3<f32>, c: Vec3<f32>, x: f32, y: f32) -> 
   (alpha, beta, 1. - alpha - beta)
 }
 
-fn draw_triangle<S: Shader, I: Image>(
+fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
   img: &mut I,
   depth_buff: &mut Vec<f32>,
   a: Point,
@@ -109,11 +109,11 @@ fn draw_triangle<S: Shader, I: Image>(
   }
 }
 
-pub fn render<S: Shader, I: Image>(
+pub fn render<S: Shader<M>, I: Image, M: crate::model::Model>(
   img: &mut I,
   depth_buff: &mut Vec<f32>,
   shader: &mut S,
-  model: &Model,
+  model: &M,
   super_sampling: bool,
 ) {
   for n in 0..model.face_count() {

@@ -33,7 +33,7 @@ fn main() {
   let mut depth_buffer = vec![f32::MIN; (img.width() * img.height()) as usize];
   //let mut model = Model::from_file("./models/cube/cube.obj").expect("Failed to load model:,");
   let mut model =
-    Model::from_file("./models/spot/spot_triangulated.obj").expect("Failed to load model:,");
+    Object::from_file("./models/spot/spot_triangulated.obj").expect("Failed to load model:,");
   // 期望看见头在右，尾巴在左的牛的侧面
   let c1 = camera1(
     Vec3::new(0., 1., 0.),

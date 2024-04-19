@@ -5,7 +5,7 @@ use yatsr::{
   geometry::Vec3,
   image::{PixImage, *},
   image_encoder::PPM,
-  model::Model,
+  model::Object,
 };
 type Point = Vec3<f32>;
 
@@ -56,7 +56,7 @@ fn main() {
     .get(1)
     .map(|f| f.clone())
     .unwrap_or(String::from("./models/girl/D0901D64.obj"));
-  let mut model = Model::from_file(model_path).expect("Failed to load model:,");
+  let mut model = Object::from_file(model_path).expect("Failed to load model:,");
   model.normalize_verts();
   let width = 500;
   let height = 500;

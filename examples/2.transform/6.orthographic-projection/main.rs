@@ -16,7 +16,7 @@ fn main() {
   let mut img = PixImage::new(500, 500);
   let mut depth_buffer = vec![f32::MIN; (img.width() * img.height()) as usize];
   let mut model =
-    Model::from_file("./models/spot/spot_triangulated.obj").expect("Failed to load model:,");
+    Object::from_file("./models/spot/spot_triangulated.obj").expect("Failed to load model:,");
   let orth = orthographic(-2., 2., -2., 2., -2., 2.);
   render(
     &mut img,
@@ -33,7 +33,7 @@ fn main() {
     &model,
     false,
   );
-  let mut model = Model::from_file("./models/cube/cube.obj").expect("Failed to load model:,");
+  let mut model = Object::from_file("./models/cube/cube.obj").expect("Failed to load model:,");
 
   render(
     &mut img,

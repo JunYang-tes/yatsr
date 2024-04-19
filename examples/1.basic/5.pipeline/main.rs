@@ -5,7 +5,7 @@ use yatsr::{
   geometry::Vec3,
   image::{Image, PixImage},
   image_encoder::PPM,
-  model::Model,
+  model::Object,
 };
 
 pub enum Fragment {
@@ -15,7 +15,7 @@ pub enum Fragment {
 
 pub trait Shader {
   // 计算顶点在屏幕（渲染结果图像）上的位置
-  fn vertext(&mut self, model: &Model, face: usize, nth_vert: usize) -> Vec3<f32>;
+  fn vertext(&mut self, model: &Object, face: usize, nth_vert: usize) -> Vec3<f32>;
   // 对于三角形内部的每点调用fragment计算该点处的颜色.
   // 片元(Fragment) 既栅格化的三角形中的每一个点，如果没做超采样，那么这个点就是
   // 像素，否则就是子像素,是否是像素对于Shader而言不重要
@@ -79,7 +79,7 @@ fn draw_triangle<S: Shader>(
   }
 }
 
-fn render<S: Shader>(img: &mut PixImage, depth_buff: &mut Vec<f32>, shader: &mut S, model: &Model) {
+fn render<S: Shader>(img: &mut PixImage, depth_buff: &mut Vec<f32>, shader: &mut S, model: &Object) {
   for n in 0..model.face_count() {
     // 通过顶点Shader 计算顶点的位置
     let a = shader.vertext(model, n, 0);
@@ -111,7 +111,7 @@ impl FlatLambert {
   }
 }
 impl Shader for FlatLambert {
-  fn vertext(&mut self, model: &Model, face: usize, nth_vert: usize) -> Vec3<f32> {
+  fn vertext(&mut self, model: &Object, face: usize, nth_vert: usize) -> Vec3<f32> {
     let p = model.vert(face, nth_vert);
     self.varying_verts[nth_vert] = p;
     let p = p + Vec3::new(1., 1., 1.); // [-1,1] => [0,2]
@@ -155,7 +155,7 @@ impl Lambert {
   }
 }
 impl Shader for Lambert {
-  fn vertext(&mut self, model: &Model, face: usize, nth_vert: usize) -> Vec3<f32> {
+  fn vertext(&mut self, model: &Object, face: usize, nth_vert: usize) -> Vec3<f32> {
     self.varying_vert_normals[nth_vert] = model.normal(face, nth_vert);
     let p = model.vert(face, nth_vert);
     let p = p + Vec3::new(1., 1., 1.); // [-1,1] => [0,2]
@@ -188,7 +188,7 @@ fn main() {
     .get(1)
     .map(|f| f.clone())
     .unwrap_or(String::from("./models/girl/D0901D64.obj"));
-  let mut model = Model::from_file(model_path).expect("Failed to load model:,");
+  let mut model = Object::from_file(model_path).expect("Failed to load model:,");
   model.normalize_verts();
   if !model.has_normal_vector() {
     println!("This model don't includes any vertex");

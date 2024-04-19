@@ -5,8 +5,8 @@ struct FlatShader {
   uniform_viewport: Mat4,
   varying_color: Vec3<f32>,
 }
-impl Shader for FlatShader {
-  fn vertext(&mut self, model: &Model, face: usize, nth_vert: usize) -> Vec3<f32> {
+impl<M:Model> Shader<M> for FlatShader {
+  fn vertext(&mut self, model: &M, face: usize, nth_vert: usize) -> Vec3<f32> {
     if nth_vert == 0 {
       self.varying_color = Vec3::new(0.05, 0.05, 0.05)
         + Vec3::new(1., 1., 1.)
@@ -34,7 +34,7 @@ fn main() {
     .get(1)
     .map(|f| f.clone())
     .unwrap_or(String::from("./models/spot/spot_triangulated.obj"));
-  let mut model = Model::from_file(model_path).expect("Failed to load model:,");
+  let mut model = Object::from_file(model_path).expect("Failed to load model:,");
   model.normalize_verts();
   let cal_lite = yatsr::font::get_cal_lite();
   cal_lite.draw_text(&mut img,0,20,4,Vec3::new(1.,1.,1.),"Fig. 1");

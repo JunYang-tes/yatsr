@@ -4,7 +4,17 @@ use std::path::Path;
 
 //https://en.wikipedia.org/wiki/Wavefront_.obj_file
 use crate::geometry::Vec3;
-pub struct Model {
+
+pub trait Model {
+  fn vert_count(&self) -> usize;
+  fn face_count(&self) -> usize;
+  fn vert(&self, face: usize, nth_vert: usize) -> Vec3<f32>;
+  fn normal(&self, face: usize, nth_vert: usize) -> Vec3<f32>;
+  fn normal_of_face(&self, face: usize) -> Vec3<f32>;
+  fn texture_coord(&self, face: usize, nth_vert: usize) -> Vec3<f32>;
+}
+
+pub struct Object {
   // 下面三个索引从1起有意义，obj文件定义的索引是从1起的
   verts: Vec<Vec3<f32>>,
   texture_coords: Vec<Vec3<f32>>,
@@ -18,7 +28,7 @@ pub struct Model {
   computed_vert_normals: Vec<Vec3<f32>>,
 }
 
-impl Model {
+impl Object {
   pub fn vert_count(&self) -> usize {
     self.verts.len() - 1
   }
@@ -132,7 +142,7 @@ impl Model {
       self.computed_vert_normals[face * 3 + nth_vert]
     }
   }
-  pub fn from_file<P: AsRef<Path>>(file: P) -> std::io::Result<Model> {
+  pub fn from_file<P: AsRef<Path>>(file: P) -> std::io::Result<Object> {
     let mut verts = vec![Vec3::new(0., 0., 0.)];
     let mut texture_coords = vec![Vec3::new(0., 0., 0.)];
     let mut vert_normals = vec![Vec3::new(0., 0., 0.)];
@@ -173,7 +183,7 @@ impl Model {
       }
     });
 
-    let mut m = Model {
+    let mut m = Object {
       verts,
       vert_normal_idx,
       vert_normals,
@@ -227,6 +237,54 @@ impl Model {
     self.computed_vert_normals = computed_vert_normals;
   }
 }
+
+impl Model for Object {
+  fn vert_count(&self) -> usize {
+    self.verts.len() - 1
+  }
+
+  fn face_count(&self) -> usize {
+    self.face_vert_idx.len()
+  }
+
+  fn vert(&self, face: usize, nth_vert: usize) -> Vec3<f32> {
+    let v_idx = self.face_vert_idx[face][nth_vert];
+    let v_idx = if v_idx >= 0 {
+      v_idx as usize
+    } else {
+      let last = self.verts.len() - 1;
+      (last as i32 - v_idx) as usize
+    };
+    self.verts[v_idx]
+  }
+
+  fn normal(&self, face: usize, nth_vert: usize) -> Vec3<f32> {
+    if self.has_normal_vector() {
+      self.vert_normals[self.get_normal_index(face, nth_vert)]
+    } else {
+      self.computed_vert_normals[face * 3 + nth_vert]
+    }
+  }
+
+  fn texture_coord(&self, face: usize, nth_vert: usize) -> Vec3<f32> {
+    let v_idx = self.face_texture_idx[face][nth_vert];
+    let v_idx = if v_idx >= 0 {
+      v_idx as usize
+    } else {
+      let last = self.texture_coords.len() - 1;
+      (last as i32 - v_idx) as usize
+    };
+    self.texture_coords[v_idx]
+  }
+
+  fn normal_of_face(&self, face: usize) -> Vec3<f32> {
+    let verts = self.verts_of_face(face);
+    return (verts[1] - verts[0])
+      .cross_product(verts[2] - verts[0])
+      .normalize();
+  }
+}
+
 fn parse_vt(line: String) -> Vec3<f32> {
   let vs = line
     .trim_matches(|ch| ch == 'v' || ch == ' ' || ch == 't' || ch == 'n')

@@ -49,8 +49,8 @@ impl FlatShader {
     }
   }
 }
-impl Shader for FlatShader {
-  fn vertext(&mut self, model: &crate::model::Model, face: usize, nth_vert: usize) -> Vec3<f32> {
+impl<O:crate::model::Model> Shader<O> for FlatShader {
+  fn vertext(&mut self, model: &O, face: usize, nth_vert: usize) -> Vec3<f32> {
     if nth_vert == 0 {
       let normal = model.normal_of_face(face);
       let normal = &self.uniform_model.invert().transpose() * &normal;

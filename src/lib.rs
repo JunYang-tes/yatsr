@@ -26,5 +26,6 @@ pub mod prelude {
   pub use crate::shaders;
   pub use crate::sdl;
   pub use crate::util;
+  pub use crate::model::*;
 }
 pub mod shaders;
