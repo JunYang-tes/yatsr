@@ -183,6 +183,9 @@ where
     let z = self.x * rhs.y - self.y * rhs.x;
     Vec3::new(x, y, z)
   }
+  pub fn product(self, rhs: Self) -> Vec3<T> {
+    Vec3::new(self.x * rhs.x, self.y * rhs.y, self.z * self.z)
+  }
   pub fn norm(self) -> f32 {
     let x: f32 = self.x.into();
     let y: f32 = self.y.into();
