@@ -8,18 +8,18 @@ impl Plane {
     Plane {
       verts: [
         //Left Upper triangle
+        Vec3::new(1., 1., 0.),
         Vec3::new(-1., 1., 0.),
         Vec3::new(-1., -1., 0.),
-        Vec3::new(1., 1., 0.),
         // Right lower triangle
         Vec3::new(1., 1., 0.),
         Vec3::new(-1., -1., 0.),
         Vec3::new(1., -1., 0.),
       ],
       uvs: [
+        Vec3::new(1., 1., 0.),
         Vec3::new(0., 1., 0.),
         Vec3::new(0., 0., 0.),
-        Vec3::new(1., 1., 0.),
         Vec3::new(1., 1., 0.),
         Vec3::new(0., 0., 0.),
         Vec3::new(1., 0., 0.),
