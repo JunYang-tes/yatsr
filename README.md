@@ -32,6 +32,18 @@
 
 [正交投影](./examples/2.transform/6.orthographic-projection/README.md)
 
+[视图变换/相机变换](./examples/2.transform/7.viewing/README.md)
+
+[透视投影](./examples/2.transform/8.perspective-projection/README.md)
+
+### 纹理
+
+[纹理影射](./examples/3.texture/1.diffuse/README.md)
+
+[双线性插值](./examples/3.texture/2.bilinear/README.md)
+
+[透视投影矫正](./examples/3.texture/3.perspective-correct-interpolation/README.md)
+
 ## 参考资料库
 
 Games 101
