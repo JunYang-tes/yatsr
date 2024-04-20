@@ -103,7 +103,7 @@ pub fn camera(up: Vec3<f32>, pos: Vec3<f32>, lookat: Vec3<f32>) -> Mat4 {
   &m * &t
 }
 
-fn perspective(fov: f32, aspect_ratio: f32, near: f32, far: f32) -> Mat4 {
+pub fn perspective(fov: f32, aspect_ratio: f32, near: f32, far: f32) -> Mat4 {
   let h = -near * (fov * std::f32::consts::PI / 180. / 2.).tan();
   let top = h;
   let bottom = -h;
@@ -129,6 +129,15 @@ impl Transform {
     Transform {
       mat: Mat4::identity(),
     }
+  }
+  pub fn viewport(mut self, width: f32, height: f32) -> Transform {
+    self.then_mat(&viewport(width, height))
+  }
+  pub fn camera(mut self, up: Vec3<f32>, pos: Vec3<f32>, lookat: Vec3<f32>) -> Transform {
+    self.then_mat(&camera(up, pos, lookat))
+  }
+  pub fn perspective(mut self, fov: f32, aspect_ratio: f32, near: f32, far: f32) -> Transform {
+    self.then_mat(&perspective(fov, aspect_ratio, near, far))
   }
   pub fn scale(mut self, sx: f32, sy: f32, sz: f32) -> Transform {
     self.mat = &scale(sx, sy, sz) * &self.mat;
