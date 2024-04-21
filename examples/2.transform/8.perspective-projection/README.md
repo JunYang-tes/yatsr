@@ -134,6 +134,8 @@ fn perspective(left: f32, right: f32, bottom: f32, top: f32, far: f32, near: f32
 
 视野指的是垂直（或水平）的可视角度是多少，这里用垂直视野。根据这个角度可以通过三角函数求出高，通过高可以得到top和bottom，通过高和宽高比可以求的left,right.
 
+![](./fov.svg)
+
 不同的fov渲染结果对比：
 
 ```shell
