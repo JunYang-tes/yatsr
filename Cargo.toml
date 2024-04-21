@@ -83,6 +83,9 @@ path="./examples/3.texture/3.perspective-correct-interpolation/demo1.rs"
 [[example]]
 name="texture_perspective_world_space"
 path="./examples/3.texture/3.perspective-correct-interpolation/demo2.rs"
+[[example]]
+name="texture_perspective_correction"
+path="./examples/3.texture/3.perspective-correct-interpolation/demo3.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
