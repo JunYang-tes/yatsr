@@ -103,11 +103,11 @@ fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
       }
       let p = a * alpha + b * beta + c * gamma;
       let index = (y * img.width() + x) as usize;
-      + let k = 1. / wa * alpha + 1. / wb * beta + 1. / wc * gamma;
++     let k = 1. / wa * alpha + 1. / wb * beta + 1. / wc * gamma;
       if p.z > depth_buff[index] {
         // 通过Fragment shader 计算每个像素的颜色
-      - match shader.fragment(p, Vec3::new(alpha , beta, gamma )) {
-      + match shader.fragment(p, Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k)) {
+-     match shader.fragment(p, Vec3::new(alpha , beta, gamma )) {
++     match shader.fragment(p, Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k)) {
           Fragment::Color(c) => {
             depth_buff[index] = p.z;
             img.set_rgb(x, y, c);
