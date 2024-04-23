@@ -2,6 +2,7 @@
 
 到[目前](https://github.com/JunYang-tes/yatsr/tree/630cdcb1bac78298a39e4e18750bdf89d1ada013),我们的重心坐标是基于屏幕空间（也就是经过了所有变换）坐标来计算的，因此，基于重心坐标的插值也是基于屏幕空间坐标得到的。在透视投影的情况下得到的结果就可能不对。例如
 ：
+
 ![](./uncorrected.png)
 
 >cargo run --example texture_perspective
@@ -54,6 +55,12 @@ impl<M: Model> Shader<M> for MyShader {
 
 ## 在栅格化三角形的时候计算重心坐标
 
+通过屏幕空间三角形的重心坐标已经三角形齐次坐标的w分量（向量最后一个分量）可以计算出正确的重心坐标，[这里](./perspective-correct-interpolation.pdf) 有公式的推导过程。
+
+下面的diff显示了对现在的栅格化或称做了哪些改造,改造后的栅格化在[pipeline2](../../../src/pipeline2.rs),应用在[这里](./demo3.rs)。
+
+>cargo run --example texture_perspective_correction
+
 
 ```diff
 
@@ -89,7 +96,7 @@ fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
 +  let a = a.to_3d_point();
 +  let b = b.to_3d_point();
 +  let c = c.to_3d_point();
-+  let min_x = a.x.min(b.x).min(c.x) as u32;
+  let min_x = a.x.min(b.x).min(c.x) as u32;
   let max_x = a.x.max(b.x).max(c.x).min((img.width() - 1) as f32) as u32;
   let min_y = a.y.min(b.y).min(c.y) as u32;
   let max_y = a.y.max(b.y).max(c.y).min((img.height() - 1) as f32) as u32;
@@ -122,7 +129,6 @@ fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
     }
   }
 }
-
-
-
 ```
+
+
