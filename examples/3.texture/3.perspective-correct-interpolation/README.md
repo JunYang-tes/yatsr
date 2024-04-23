@@ -56,51 +56,73 @@ impl<M: Model> Shader<M> for MyShader {
 
 
 ```diff
-5d4
-<   pipeline::Fragment,
-7a7,12
-> pub enum Fragment {
->   Discard,
->   Color(Vec3<f32>),
->   Rgba(Vec4<f32>),
-> }
-> 
-10c15
-<   fn vertext(&mut self, model: &M, face: usize, nth_vert: usize) -> Vec4<f32>;
----
->   fn vertext(&mut self, model: &M, face: usize, nth_vert: usize) -> Vec3<f32>;
-21c26
-< type Point = Vec4<f32>;
----
-> type Point = Vec3<f32>;
-34,36c39,41
-<   a: Vec4<f32>,
-<   b: Vec4<f32>,
-<   c: Vec4<f32>,
----
->   a: Point,
->   b: Point,
->   c: Point,
-40,45d44
-<   let wa = a.w;
-<   let wb = b.w;
-<   let wc = c.w;
-<   let a = a.to_3d_point();
-<   let b = b.to_3d_point();
-<   let c = c.to_3d_point();
-51d49
-< 
-63,64c61
-<           let k = 1. / (alpha / wa + beta / wb + gamma / wc);
-<           match shader.fragment(p, Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k)) {
----
->           match shader.fragment(p, Vec3::new(alpha, beta, gamma)) {
-96d92
-<         let k = 1. / wa * alpha + 1. / wb * beta + 1. / wc * gamma;
-99c95
-<           match shader.fragment(p, Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k)) {
----
->           match shader.fragment(p, Vec3::new(alpha, beta, gamma)) {
+
+pub trait Shader<M: crate::model::Model> {
+  // 计算顶点在屏幕（渲染结果图像）上的位置
+- fn vertext(&mut self, model: &M, face: usize, nth_vert: usize) -> Vec3<f32>;
++ fn vertext(&mut self, model: &M, face: usize, nth_vert: usize) -> Vec4<f32>;
+  // 对于三角形内部的每点调用fragment计算该点处的颜色
+  fn fragment(
+    &self,
+    // 此点坐标
+    pos: Vec3<f32>,
+    // 此点处的质心坐标
+    bar: Vec3<f32>,
+  ) -> Fragment;
+}
+
+fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
+  img: &mut I,
+  depth_buff: &mut Vec<f32>,
+- a: Vec3<f32>,
+- b: Vec3<f32>,
+- c: Vec3<f32>,
++ a: Vec4<f32>,
++ b: Vec4<f32>,
++ c: Vec4<f32>,
+  shader: &mut S,
+  super_sampling: bool,
+) {
++  let wa = a.w;
++  let wb = b.w;
++  let wc = c.w;
++  let a = a.to_3d_point();
++  let b = b.to_3d_point();
++  let c = c.to_3d_point();
++  let min_x = a.x.min(b.x).min(c.x) as u32;
+  let max_x = a.x.max(b.x).max(c.x).min((img.width() - 1) as f32) as u32;
+  let min_y = a.y.min(b.y).min(c.y) as u32;
+  let max_y = a.y.max(b.y).max(c.y).min((img.height() - 1) as f32) as u32;
+  let sub_pix_offset = [(-0.25, -0.25), (0.75, 0.75), (-0.25, 0.75), (0.25, -0.75)];
+
+  for y in min_y..=max_y {
+    for x in min_x..=max_x {
+      let (alpha, beta, gamma) = barycentric(a, b, c, x as f32, y as f32);
+      if alpha < 0. || beta < 0. || gamma < 0. {
+        continue;
+      }
+      let p = a * alpha + b * beta + c * gamma;
+      let index = (y * img.width() + x) as usize;
+      + let k = 1. / wa * alpha + 1. / wb * beta + 1. / wc * gamma;
+      if p.z > depth_buff[index] {
+        // 通过Fragment shader 计算每个像素的颜色
+      - match shader.fragment(p, Vec3::new(alpha , beta, gamma )) {
+      + match shader.fragment(p, Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k)) {
+          Fragment::Color(c) => {
+            depth_buff[index] = p.z;
+            img.set_rgb(x, y, c);
+          }
+          Fragment::Rgba(c) => {
+            depth_buff[index] = p.z;
+            img.blending(x, y, c);
+          }
+          Fragment::Discard => {}
+        }
+      }
+    }
+  }
+}
+
 
 
 ```
