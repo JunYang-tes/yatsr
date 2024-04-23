@@ -6,6 +6,7 @@ pub mod image_encoder;
 pub mod mat;
 pub mod model;
 pub mod pipeline;
+pub mod pipeline2;
 pub mod transform;
 pub mod font;
 pub mod sdl;
@@ -28,6 +29,7 @@ pub mod prelude {
   pub use crate::util;
   pub use crate::model::*;
   pub use crate::shape;
+  pub use crate::pipeline2;
 }
 pub mod shape;
 pub mod shaders;

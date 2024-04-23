@@ -14,6 +14,8 @@
 
 根据我们日常生活的经验，这个渲染结果显然是不对的，这些格子应该有近大远小的关系。纹理图片中的两条红线为对角线，其中一条看起来像被折断了一样，这也显然是不对的。为什么会这样呢？这是因为在计算纹理坐标的时候用的重心坐标是屏幕空间的坐标系。在渲染左上角的三角的斜边的中点的时候，计算出来的纹理坐标为（0.5,0.5），即纹理的中心，而在正确的渲染结果中,纹理的中心位置应该为应用到更靠右靠上的地方。
 
+## 通过逆矩阵在片元着色代码里计算重心坐标
+
 我们可以通过在Shader里保留三个原始的顶点（定点的世界坐标），并且在片元的着色代码里基于世界坐标来计算重心坐标，从而插值得到uv坐标。
 ```rust
 impl<M: Model> Shader<M> for MyShader {
@@ -49,3 +51,56 @@ impl<M: Model> Shader<M> for MyShader {
 ```
 
 ![](./correct.png)
+
+## 在栅格化三角形的时候计算重心坐标
+
+
+```diff
+5d4
+<   pipeline::Fragment,
+7a7,12
+> pub enum Fragment {
+>   Discard,
+>   Color(Vec3<f32>),
+>   Rgba(Vec4<f32>),
+> }
+> 
+10c15
+<   fn vertext(&mut self, model: &M, face: usize, nth_vert: usize) -> Vec4<f32>;
+---
+>   fn vertext(&mut self, model: &M, face: usize, nth_vert: usize) -> Vec3<f32>;
+21c26
+< type Point = Vec4<f32>;
+---
+> type Point = Vec3<f32>;
+34,36c39,41
+<   a: Vec4<f32>,
+<   b: Vec4<f32>,
+<   c: Vec4<f32>,
+---
+>   a: Point,
+>   b: Point,
+>   c: Point,
+40,45d44
+<   let wa = a.w;
+<   let wb = b.w;
+<   let wc = c.w;
+<   let a = a.to_3d_point();
+<   let b = b.to_3d_point();
+<   let c = c.to_3d_point();
+51d49
+< 
+63,64c61
+<           let k = 1. / (alpha / wa + beta / wb + gamma / wc);
+<           match shader.fragment(p, Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k)) {
+---
+>           match shader.fragment(p, Vec3::new(alpha, beta, gamma)) {
+96d92
+<         let k = 1. / wa * alpha + 1. / wb * beta + 1. / wc * gamma;
+99c95
+<           match shader.fragment(p, Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k)) {
+---
+>           match shader.fragment(p, Vec3::new(alpha, beta, gamma)) {
+
+
+```
