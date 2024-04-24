@@ -17,16 +17,6 @@ impl<M: Model> pipeline2::Shader<M> for MyShader {
     // 此点处的质心坐标
     bar: Vec3<f32>,
   ) -> Fragment {
-    /*
-    *file:///home/yj/Documents/xwechat_files/wxid_37x8sm7w6qg522_3fbc/msg/file/2024-04/perspective-correct-interpolation.pdf
-    *
-       let k = (1. / self.varying_w[0]) * bar.x
-         + (1. / self.varying_w[1]) * bar.y
-         + (1. / self.varying_w[2]) * bar.z;
-       let alpha = bar.x / self.varying_w[0] / k;
-       let beta = bar.y / self.varying_w[1] / k;
-       let gamma = bar.z / self.varying_w[2] / k;
-    * */
     let uv =
       self.varying_uvs[0] * bar.x + self.varying_uvs[1] * bar.y + self.varying_uvs[2] * bar.z;
 
