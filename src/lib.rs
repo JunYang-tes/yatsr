@@ -11,6 +11,7 @@ pub mod transform;
 pub mod font;
 pub mod sdl;
 pub mod util;
+pub mod texture;
 pub mod prelude {
   pub use crate::file::save_image;
   pub use crate::geometry::{Vec3, Vec4};
@@ -30,6 +31,7 @@ pub mod prelude {
   pub use crate::model::*;
   pub use crate::shape;
   pub use crate::pipeline2;
+  pub use crate::texture::*;
 }
 pub mod shape;
 pub mod shaders;
