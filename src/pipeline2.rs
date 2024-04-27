@@ -60,7 +60,7 @@ fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
             continue;
           }
           let p = a * alpha + b * beta + c * gamma;
-          let k = 1. / (alpha / wa + beta / wb + gamma / wc);
+          let k = 1. / wa * alpha + 1. / wb * beta + 1. / wc * gamma;
           match shader.fragment(p, Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k)) {
             Fragment::Color(c) => {
               color = color + Vec4::new(c.x, c.y, c.z, 1.);
