@@ -28,6 +28,28 @@ pub fn barycentric(a: Vec3<f32>, b: Vec3<f32>, c: Vec3<f32>, x: f32, y: f32) -> 
   (alpha, beta, 1. - alpha - beta)
 }
 
+pub fn super_sampling_offsets(m: u32) -> Vec<(f32, f32)> {
+  let offsets = vec![(0., 0.); (m * m) as usize];
+  let sub_pix_width = 1. / (m * m) as f32;
+  offsets
+    .iter()
+    .enumerate()
+    .map(|(idx, _)| {
+      let x = idx % (m as usize);
+      let y = idx / (m as usize);
+      (
+        (x + 1) as f32 * sub_pix_width - 0.5,
+        (y + 1) as f32 * sub_pix_width - 0.5,
+      )
+    })
+    .collect()
+}
+#[test]
+fn test_supper_sample_offsets() {
+  let offsets = super_sampling_offsets(2);
+  println!("{:?}",offsets)
+}
+
 fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
   img: &mut I,
   depth_buff: &mut Vec<f32>,
@@ -35,7 +57,7 @@ fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
   b: Vec4<f32>,
   c: Vec4<f32>,
   shader: &mut S,
-  super_sampling: bool,
+  super_sampling: &Option<Vec<(f32,f32)>>,
 ) {
   let wa = a.w;
   let wb = b.w;
@@ -49,7 +71,7 @@ fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
   let max_y = a.y.max(b.y).max(c.y).min((img.height() - 1) as f32) as u32;
   let sub_pix_offset = [(-0.25, -0.25), (0.75, 0.75), (-0.25, 0.75), (0.25, -0.75)];
 
-  if super_sampling {
+  if let Some(sub_pix_offset)= super_sampling {
     for y in min_y..=max_y {
       for x in min_x..=max_x {
         let mut color = Vec4::default();
@@ -122,13 +144,19 @@ pub fn render<S: Shader<M>, I: Image, M: crate::model::Model>(
   depth_buff: &mut Vec<f32>,
   shader: &mut S,
   model: &M,
-  super_sampling: bool,
+  super_sampling: u32
 ) {
+  let super_sampling = if super_sampling > 1 {
+    Some(super_sampling_offsets(super_sampling))
+  } else {
+    None
+  };
+
   for n in 0..model.face_count() {
     // 通过顶点Shader 计算顶点的位置
     let a = shader.vertext(model, n, 0);
     let b = shader.vertext(model, n, 1);
     let c = shader.vertext(model, n, 2);
-    draw_triangle(img, depth_buff, a, b, c, shader, super_sampling)
+    draw_triangle(img, depth_buff, a, b, c, shader, &super_sampling)
   }
 }
