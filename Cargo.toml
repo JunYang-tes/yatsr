@@ -88,7 +88,10 @@ name="texture_perspective_correction"
 path="./examples/3.texture/3.perspective-correct-interpolation/demo3.rs"
 [[example]]
 name="texture_aliasing"
-path="./examples/3.texture/4.mipmap/aliaing.rs"
+path="./examples/3.texture/4.mipmap/aliasing.rs"
+[[example]]
+name="texture_mipmap"
+path="./examples/3.texture/4.mipmap/mipmap.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
