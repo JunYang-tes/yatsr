@@ -44,6 +44,8 @@
 
 [透视投影矫正](./examples/3.texture/3.perspective-correct-interpolation/README.md)
 
+[mipmap](./examples/3.texture/4.mipmap/README.md)
+
 ## 参考资料库
 
 Games 101
