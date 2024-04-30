@@ -134,9 +134,6 @@ impl Image for PixImage {
 
   fn get_rgba(&self, x: u32, y: u32) -> Vec4<u8> {
     let ind = 4 * self.index(x, y);
-    if ind == 133200 {
-      println!("{},{},{}",x,y,self.height);
-    }
     let r = self.data[ind];
     let g = self.data[ind + 1];
     let b = self.data[ind + 2];
