@@ -121,11 +121,7 @@ fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
           match shader.fragment(p, Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k)) {
             Fragment::Color(c) => {
               depth_buff[index] = p.z;
-              if p.z >= -1.1 && p.z <= 1.1 {
-                img.set_rgb(x, y, c * 2.);
-              } else {
-                //img.set_rgb(x, y, c);
-              }
+              img.set_rgb(x, y, c);
             }
             Fragment::Rgba(c) => {
               depth_buff[index] = p.z;
