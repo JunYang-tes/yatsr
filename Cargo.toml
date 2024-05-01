@@ -92,6 +92,9 @@ path="./examples/3.texture/4.mipmap/aliasing.rs"
 [[example]]
 name="texture_mipmap"
 path="./examples/3.texture/4.mipmap/mipmap.rs"
+[[example]]
+name="texture_ripmap"
+path="./examples/3.texture/5.ripmap/ripmap.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
