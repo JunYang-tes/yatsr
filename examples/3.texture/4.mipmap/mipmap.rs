@@ -185,7 +185,7 @@ fn main() {
         varying_verts: [Vec4::default(), Vec4::default(), Vec4::default()],
       },
       &model,
-      2,
+      0,
     );
     save_image("mipmap.ppm", &img, PPM);
   })

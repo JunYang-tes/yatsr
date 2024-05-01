@@ -35,9 +35,7 @@ let color = interp(D-D.floor(),c1,c2);
 
 应用mipmap 渲染的结果：
 
-mipmap|x2超采样+mipmap
--|-
-![](./mipmap.png)|![](./mipmap1.png)
+![](./mipmap.png)
 
 >cargo run --example texture_mipmap -- grid
 
