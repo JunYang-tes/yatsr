@@ -44,7 +44,7 @@ fn main() {
         varying_uvs: [Vec3::default(), Vec3::default(), Vec3::default()],
       },
       &model,
-      false,
+      0,
     );
   })
 }
