@@ -80,8 +80,8 @@ fn to_screen_destination(v: u8) -> ScreenDestination {
 }
 fn screen_destination_to_img_origin(d: &ScreenDestination) -> ImageOriginPos {
   match d {
-    ScreenDestination::TopLeft => ImageOriginPos::LeftTop,
-    ScreenDestination::BottomLeft => ImageOriginPos::LeftBottom,
+    ScreenDestination::TopLeft => ImageOriginPos::LeftBottom,
+    ScreenDestination::BottomLeft => ImageOriginPos::LeftTop,
     _ => {
       panic!("Unsupported screen destination")
     }

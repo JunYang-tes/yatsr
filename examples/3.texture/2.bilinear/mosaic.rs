@@ -30,7 +30,7 @@ fn main() {
       &mut img,
       &mut vec![f32::MIN; 600 * 600],
       &mut MyShader {
-        texture: util::load_image("./textures/sui.tga").flip_y(),
+        texture: util::load_image("./textures/sui.tga"),
         mat: transform::viewport(600., 600.),
         varying_uvs: [Vec3::default(), Vec3::default(), Vec3::default()],
       },

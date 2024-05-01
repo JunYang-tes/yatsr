@@ -33,7 +33,7 @@ fn main() {
       &mut img,
       &mut depth_buffer,
       &mut MyShader {
-        texture: util::load_image("./textures/grid2.tga").flip_y(),
+        texture: util::load_image("./textures/grid2.tga"),
         mat: Transform::new()
           .rotate_x(-90. * 3.14 / 180.)
           .camera(Vec3::new(0., 1., 0.), pos, Vec3::new(0., 0., 0.))

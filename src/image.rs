@@ -17,6 +17,7 @@ pub trait Image {
       ImageOriginPos::LeftBottom => (h - 1 - y) * w + x,
       ImageOriginPos::LeftTop => y * w + x,
     }
+    
   }
   fn blending(&mut self, x: u32, y: u32, color: Vec4<f32>) {
     // https://zh.wikipedia.org/wiki/Alpha%E5%90%88%E6%88%90
@@ -84,6 +85,7 @@ pub enum ImageOriginPos {
   LeftTop,
   LeftBottom,
 }
+#[derive(Debug)]
 pub struct PixImage {
   pub width: u32,
   pub height: u32,
@@ -105,7 +107,7 @@ impl PixImage {
       width,
       height,
       data,
-      origin,
+      origin
     }
   }
   pub fn flip_y(&self) -> PixImage {
