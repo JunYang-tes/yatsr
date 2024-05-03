@@ -52,13 +52,13 @@ pub struct Cubemap {
   texture: [Texture; 6],
 }
 impl Cubemap {
-  fn new(image: &PixImage, faces: [(f32, f32, f32, f32); 6]) -> Cubemap {
+  pub fn new(image: &PixImage, faces: [(f32, f32, f32, f32); 6]) -> Cubemap {
     let c = Cubemap {
       texture: faces.map(|(x, y, w, h)| Texture::new(util::sub_img(image, x, y, w, h))),
     };
     c
   }
-  fn colored() -> Cubemap {
+  pub fn colored() -> Cubemap {
     Cubemap {
       texture: [
         //#ff0000
@@ -106,7 +106,39 @@ impl Cubemap {
       ],
     }
   }
-  fn get(&self, point: Vec3<f32>) -> Vec3<f32> {
+  pub fn get_uv(&self, point: Vec3<f32>) -> Vec3<f32> {
+    let cube = [
+      // 由一个点和一个法向量定义平面
+      (Vec3::new(0., 0., 1.), Vec3::new(0., 0., 1.)), // front
+      (Vec3::new(-1., -1., -1.), Vec3::new(0., 0., -1.)), // back
+      (Vec3::new(-1., -1., 1.), Vec3::new(-1., 0., 0.)), // left
+      (Vec3::new(1., -1., 1.), Vec3::new(1., 0., 0.)), // right
+      (Vec3::new(1., 1., 1.), Vec3::new(0., 1., 0.)), // top
+      (Vec3::new(1., -1., 1.), Vec3::new(0., -1., 0.)), // bottom
+    ];
+    for (ind, (p, normal)) in cube.iter().enumerate() {
+      let p = util::intersect_of_plan_line(
+        *p, *normal, point, point, // point - Vec3::new(0.,0.,0.)
+      );
+      if let Some(p) = p {
+        if p.x >= -1. && p.x <= 1. && p.y >= -1. && p.y <= 1. && p.z >= -1. && p.z <= 1. {
+          let (u, v) = match ind {
+            0 => ((p.x + 1.) / 2., (p.y + 1.) / 2.),
+            1 => ((-p.x + 1.) / 2., (p.y + 1.) / 2.),
+            2 => ((p.z + 1.) / 2., (p.y + 1.) / 2.),
+            // right
+            3 => ((-p.z + 1.) / 2., (p.y + 1.) / 2.),
+            // top
+            4 => ((-p.x + 1.) / 2., (p.z + 1.) / 2.),
+            _ => ((p.x + 1.) / 2., (p.z + 1.) / 2.),
+          };
+          return Vec3::new(u, v, 0.);
+        }
+      }
+    }
+    return Vec3::new(1., 1., 0.);
+  }
+  pub fn get(&self, point: Vec3<f32>) -> Vec3<f32> {
     let cube = [
       // 由一个点和一个法向量定义平面
       (Vec3::new(0., 0., 1.), Vec3::new(0., 0., 1.)), // front
