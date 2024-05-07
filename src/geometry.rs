@@ -172,6 +172,24 @@ macro_rules! Vecs {
 Vecs!(Vec2, 2, x, y,);
 Vecs!(Vec3, 3, x, y, z,);
 
+impl<T: Copy> Vec2<T>
+where
+  T: Mul<Output = T> + Sub<Output = T> + Into<f32>,
+{
+  pub fn norm(self) -> f32 {
+    let x: f32 = self.x.into();
+    let y: f32 = self.y.into();
+    (x * x + y * y).sqrt().into()
+  }
+  pub fn normalize(self) -> Vec2<f32> {
+    let x: f32 = self.x.into();
+    let y: f32 = self.y.into();
+    let l = self.norm();
+    let n = Vec2::new(x, y);
+    n * (1. / l)
+  }
+}
+
 impl<T: Copy> Vec3<T>
 where
   T: Mul<Output = T> + Sub<Output = T> + Into<f32>,
