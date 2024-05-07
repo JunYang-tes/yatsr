@@ -95,6 +95,9 @@ path="./examples/3.texture/4.mipmap/mipmap.rs"
 [[example]]
 name="texture_sat"
 path="./examples/3.texture/5.anisotropic/sat.rs"
+[[example]]
+name="texture_unconstrained"
+path="./examples/3.texture/5.anisotropic/unconstrained.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
