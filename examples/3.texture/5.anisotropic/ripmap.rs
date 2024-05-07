@@ -27,6 +27,11 @@ fn hhalf(img: &PixImage) -> PixImage {
 }
 
 struct Ripmap {
+  // (w,h)   (w/2,h)   (w/4,h)    ... (1,h)
+  // (w,h/2) (w/2,h/2) (w/4,h/2)  ... (1,h/2)
+  // (w,h/4) (w/2,h/4) (w/4,h/4)  ... (1,h/4)
+  // ...
+  // (w,1)   (w/2,1)   (w/4,1)q   ... (1,1)
   images: Vec<Vec<Texture>>,
 }
 impl Ripmap {
@@ -51,29 +56,22 @@ impl Ripmap {
       images.push(row);
       height = height / 2;
     }
-
-    // for row in images.iter().enumerate() {
-    //     for col in row.1.iter().enumerate() {
-    //         save_image(format!("{}-{}.ppm",row.0,col.0),&col.1.image,PPM);
-    //
-    //     }
-    //
-    // }
-
     Ripmap { images }
   }
   fn get(&self, level_x: f32, level_y: f32, u: f32, v: f32) -> Vec3<f32> {
-    let level_x = level_x.clamp(0., (self.images[0].len() - 1) as f32);
-    let level_y = level_y.clamp(0., (self.images.len() - 1) as f32);
 
-    let c1 = self.images[level_y.floor() as usize][level_x.floor() as usize].get(u, v);
-    let c2 = self.images[level_y.ceil() as usize][level_x.floor() as usize].get(u, v);
-    let c3 = util::linear_interpolation(level_y - level_y.floor(), c1, c2);
-    let c5 = self.images[level_y.floor() as usize][level_x.ceil() as usize].get(u, v);
-    let c6 = self.images[level_y.ceil() as usize][level_x.ceil() as usize].get(u, v);
-    let c7 = util::linear_interpolation(level_y - level_y.floor(), c5, c6);
-    let mut c= util::linear_interpolation(level_x - level_x.floor(), c3, c7);
-    c
+    // let level_x = level_x.clamp(0., (self.images[0].len() - 1) as f32);
+    // let level_y = level_y.clamp(0., (self.images.len() - 1) as f32);
+    //
+    // let c1 = self.images[level_y.floor() as usize][level_x.floor() as usize].get(u, v);
+    // let c2 = self.images[level_y.ceil() as usize][level_x.floor() as usize].get(u, v);
+    // let c3 = util::linear_interpolation(level_y - level_y.floor(), c1, c2);
+    //
+    // let c4 = self.images[level_y.floor() as usize][level_x.ceil() as usize].get(u, v);
+    // let c5 = self.images[level_y.ceil() as usize][level_x.ceil() as usize].get(u, v);
+    //
+    // let c6 = util::linear_interpolation(level_y - level_y.floor(), c4, c5);
+    // util::linear_interpolation(level_x - level_x.floor(), c3, c6)
   }
 }
 
@@ -136,25 +134,22 @@ impl<M: Model> pipeline2::Shader<M> for MyShader {
       self.varying_uvs[0] * right.x + self.varying_uvs[1] * right.y + self.varying_uvs[2] * right.z;
     let screen_size = self.screen_size;
 
+    // 垂直方向
     let l1 = (((top_uv.x - uv.x) * screen_size).powi(2)
       + (screen_size * (top_uv.y - uv.y)).powi(2))
     .sqrt();
+    // 水平方向
     let l2 = (((right_uv.x - uv.x) * screen_size).powi(2)
       + (screen_size * (right_uv.y - uv.y)).powi(2))
     .sqrt();
-    // 如果l1 > l2 , 说明是一个竖的
-    //
 
-    //Fragment::Color(self.texture.get(l1.log2(), l1.log2(), uv.x, uv.y))
-    //Fragment::Color(self.texture.get(l2.log2(), l2.log2(), uv.x, uv.y))
-    //Fragment::Color(self.texture.get(l1.log2(), l2.log2(), uv.x, uv.y))
     Fragment::Color(self.texture.get(l2.log2(), l1.log2(), uv.x, uv.y))
   }
 }
 
 fn main() {
   sdl::one_frame("Ripmap", 600, 600, |mut img| {
-    let ripmap = Ripmap::new(util::load_image("./textures/grid3.tga"));
+    let ripmap = Ripmap::new(util::load_image("./textures/grid1.tga"));
     let mut depth_buffer = vec![f32::MIN; 600 * 600];
     let model = shape::Plane::new();
     let mat = Transform::new()
