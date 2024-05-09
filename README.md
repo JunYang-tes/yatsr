@@ -46,9 +46,13 @@
 
 [mipmap](./examples/3.texture/4.mipmap/README.md)
 
+[各向异性过滤](./examples/3.texture/5.anisotropic/README.md)
+
 ## 参考资料库
 
 Games 101
 
 Fundamentals of Computer Graphics 4th Edition
+
+Real-Time Rendering
 
