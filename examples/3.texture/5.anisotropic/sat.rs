@@ -8,9 +8,12 @@ impl SAT {
   fn new(texture: PixImage) -> SAT {
     let width = texture.width() as usize;
     let height = texture.width() as usize;
+    // SAT的构建过程如下
+    // 将这个Vec当做一个行优先的二维数组，因此索引index=row *width+col
     let mut data = vec![Vec3::default(); (texture.width() * texture.height()) as usize];
     for row in 0..height {
       for col in 0..width {
+        // a b c 的含义见图4.png
         let (a, b, c) = match (row, col) {
           (0, 0) => (Vec3::default(), Vec3::default(), Vec3::default()),
           (0, col) => (
@@ -41,15 +44,20 @@ impl SAT {
   fn get(&self, left_bottom: (f32, f32), right_top: (f32, f32)) -> Vec3<f32> {
     let left_bottom = (left_bottom.0.clamp(0., 1.), left_bottom.1.clamp(0., 1.));
     let right_top = (right_top.0.clamp(0., 1.), right_top.1.clamp(0., 1.));
+    // 左下角坐标
     let (x, y) = (
       left_bottom.0 * (self.texture.image.width() - 1) as f32,
       left_bottom.1 * (self.texture.image.height() - 1) as f32,
     );
+    // 右上角坐标
     let (rt_x, rt_y) = (
       right_top.0 * (self.texture.image.width() - 1) as f32,
       right_top.1 * (self.texture.image.height() - 1) as f32,
     );
 
+    // 简单起见，对于x或y相差不到1个像素的footprint，直接用包围盒的中点
+    // 处的纹素代替。这不如 (rt_x - x) <=1. && (rt_y - y ) <=1 准确，但
+    // 这样会面临处理rt_x == x 以及 rt_y == y 时的麻烦
     if (rt_x - x) <= 1. || (rt_y - y) <= 1. {
       return self.texture.get(
         (left_bottom.0 + right_top.0) / 2.,
@@ -57,36 +65,23 @@ impl SAT {
       );
     }
     let width = self.texture.image.width() as usize;
+    // 包围盒的面积等于像素数量
     let area = ((rt_y - y) * (rt_x - x));
     let x = x.round() as usize;
     let y = y.round() as usize;
     let rt_x = rt_x.round() as usize;
     let rt_y = rt_y.round() as usize;
-    let (x, rt_x) = if x == rt_x {
-      if rt_x == width - 1 {
-        (x - 1, rt_x)
-      } else {
-        (x, rt_x + 1)
-      }
-    } else {
-      (x, rt_x)
-    };
-
+    // footprint包围盒总像素值
     let total =
       self.data[width * rt_y + rt_x] - self.data[width * rt_y + x] - self.data[width * y + rt_x]
         + self.data[width * y + x];
-    let c = total * (1. / area);
-    if c.z <= 0. {
-      return Vec3::new(1., 0., 0.);
-    }
-    return c;
+    total * (1. / area)
   }
 }
 
 struct MyShader {
   texture: SAT,
   mat: Mat4,
-  invert: Mat4,
   screen_size: f32,
   varying_uvs: [Vec3<f32>; 3],
   varying_verts: [Vec4<f32>; 3],
@@ -177,7 +172,6 @@ fn main() {
       .perspective(75., 1., -0.1, -10000.)
       .viewport(img.width() as f32, img.height() as f32)
       .build();
-    let invert = mat.invert();
     pipeline2::render(
       &mut img,
       &mut depth_buffer,
@@ -185,7 +179,6 @@ fn main() {
         screen_size: 600.,
         texture: ripmap,
         mat,
-        invert,
         varying_uvs: [Vec3::default(), Vec3::default(), Vec3::default()],
         varying_verts: [Vec4::default(), Vec4::default(), Vec4::default()],
       },
