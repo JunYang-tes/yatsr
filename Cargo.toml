@@ -98,6 +98,9 @@ path="./examples/3.texture/5.anisotropic/sat.rs"
 [[example]]
 name="texture_unconstrained"
 path="./examples/3.texture/5.anisotropic/unconstrained.rs"
+[[example]]
+name="texture_cubemap"
+path="./examples/3.texture/6.cubemap/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
