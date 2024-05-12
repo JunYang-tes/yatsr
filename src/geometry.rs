@@ -249,6 +249,9 @@ impl Vec4<f32> {
   pub fn to_3d_point(&self) -> Vec3<f32> {
     Vec3::new(self.x / self.w, self.y / self.w, self.z / self.w)
   }
+  pub fn to_3d_vector(&self) -> Vec3<f32> {
+    Vec3::new(self.x, self.y, self.z)
+  }
   pub fn set(&mut self, i: u8, v: f32) {
     match i {
       0 => self.x = v,
