@@ -1,4 +1,4 @@
-use crate::prelude::{Vec3, PixImage, Image};
+use crate::prelude::{Image, PixImage, Vec3};
 
 pub fn load_image<P: AsRef<std::path::Path>>(p: P) -> crate::image::PixImage {
   use crate::image_decoder::*;
@@ -43,4 +43,8 @@ pub fn sub_img(img: &PixImage, x: f32, y: f32, w: f32, h: f32) -> PixImage {
     }
   }
   sub
+}
+
+pub fn barycentric_interpolate(props: &[Vec3<f32>; 3], bar: Vec3<f32>) -> Vec3<f32> {
+  props[0] * bar.x + props[1] * bar.y + props[2] * bar.z
 }
