@@ -86,17 +86,6 @@ struct MyShader {
   varying_uvs: [Vec3<f32>; 3],
   varying_verts: [Vec4<f32>; 3],
 }
-fn barycentric(a: Vec4<f32>, b: Vec4<f32>, c: Vec4<f32>, x: f32, y: f32) -> Vec3<f32> {
-  let wa = a.w;
-  let wb = b.w;
-  let wc = c.w;
-  let a = a.to_3d_point();
-  let b = b.to_3d_point();
-  let c = c.to_3d_point();
-  let bar = pipeline2::barycentric(a, b, c, x, y);
-  let k = 1. / wa * bar.0 + 1. / wb * bar.1 + 1. / wc * bar.2;
-  Vec3::new(bar.0 / wa / k, bar.1 / wb / k, bar.2 / wc / k)
-}
 
 impl<M: Model> pipeline2::Shader<M> for MyShader {
   fn vertext(&mut self, model: &M, face: usize, nth_vert: usize) -> Vec4<f32> {
@@ -106,41 +95,11 @@ impl<M: Model> pipeline2::Shader<M> for MyShader {
     p
   }
 
-  fn fragment(
-    &self,
-    // 此点坐标
-    pos: Vec3<f32>,
-    // 此点处的质心坐标
-    bar: Vec3<f32>,
-  ) -> Fragment {
-    let a = barycentric(
-      self.varying_verts[0],
-      self.varying_verts[1],
-      self.varying_verts[2],
-      pos.x - 0.5,
-      pos.y - 0.5,
-    );
-    let b = barycentric(
-      self.varying_verts[0],
-      self.varying_verts[1],
-      self.varying_verts[2],
-      pos.x - 0.5,
-      pos.y + 0.5,
-    );
-    let c = barycentric(
-      self.varying_verts[0],
-      self.varying_verts[1],
-      self.varying_verts[2],
-      pos.x + 0.5,
-      pos.y - 0.5,
-    );
-    let d = barycentric(
-      self.varying_verts[0],
-      self.varying_verts[1],
-      self.varying_verts[2],
-      pos.x + 0.5,
-      pos.y + 0.5,
-    );
+  fn fragment(&self, info: pipeline2::FragmentInfo) -> Fragment {
+    let a = info.barycentric(info.pos.x - 0.5, info.pos.y - 0.5);
+    let b = info.barycentric(info.pos.x - 0.5, info.pos.y + 0.5);
+    let c = info.barycentric(info.pos.x + 0.5, info.pos.y - 0.5);
+    let d = info.barycentric(info.pos.x + 0.5, info.pos.y + 0.5);
 
     let a_uv = self.varying_uvs[0] * a.x + self.varying_uvs[1] * a.y + self.varying_uvs[2] * a.z;
     let b_uv = self.varying_uvs[0] * b.x + self.varying_uvs[1] * b.y + self.varying_uvs[2] * b.z;
@@ -170,7 +129,6 @@ fn main() {
         Vec3::new(0., 0., 0.),
       )
       .perspective(75., 1., -0.1, -10000.)
-      .viewport(img.width() as f32, img.height() as f32)
       .build();
     pipeline2::render(
       &mut img,

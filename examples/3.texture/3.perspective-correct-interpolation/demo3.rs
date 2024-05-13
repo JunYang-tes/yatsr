@@ -10,15 +10,9 @@ impl<M: Model> pipeline2::Shader<M> for MyShader {
     &self.mat * Vec4::from_point(&model.vert(face, nth_vert))
   }
 
-  fn fragment(
-    &self,
-    // 此点坐标
-    pos: Vec3<f32>,
-    // 此点处的质心坐标
-    bar: Vec3<f32>,
-  ) -> Fragment {
-    let uv =
-      self.varying_uvs[0] * bar.x + self.varying_uvs[1] * bar.y + self.varying_uvs[2] * bar.z;
+  fn fragment(&self, info: pipeline2::FragmentInfo) -> Fragment {
+    let uv = info.barycentric_interpolate(&self.varying_uvs);
+      // self.varying_uvs[0] * bar.x + self.varying_uvs[1] * bar.y + self.varying_uvs[2] * bar.z;
 
     Fragment::Color(self.texture.get_vec3f(uv.x, uv.y))
   }
@@ -39,7 +33,7 @@ fn main() {
           .rotate_x(-90. * 3.14 / 180.)
           .camera(Vec3::new(0., 1., 0.), pos, Vec3::new(0., 0., 0.))
           .perspective(65., 1., -1., -4.)
-          .viewport(600., 600.)
+          //.viewport(600., 600.)
           .build(),
         varying_uvs: [Vec3::default(), Vec3::default(), Vec3::default()],
       },

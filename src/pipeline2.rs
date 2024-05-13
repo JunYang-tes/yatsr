@@ -5,17 +5,51 @@ use crate::{
   pipeline::Fragment,
 };
 
+pub struct FragmentInfo {
+  width: f32,
+  height: f32,
+  pub z: [f32; 3],
+  pub vertices: [Vec3<f32>; 3],
+  // 屏幕空间内片元坐标
+  pub pos: Vec3<f32>,
+  // 屏幕空间质心坐标
+  pub bar: Vec3<f32>,
+}
+impl FragmentInfo {
+  pub fn barycentric_interpolate(&self, props: &[Vec3<f32>; 3]) -> Vec3<f32> {
+    crate::util::barycentric_interpolate(props, self.bar)
+  }
+  // 同一平面的其它位置的重心坐标
+  pub fn barycentric(&self, x: f32, y: f32) -> Vec3<f32> {
+    let bar = barycentric(self.vertices[0], self.vertices[1], self.vertices[2], x, y);
+    let [wa, wb, wc] = self.z;
+    let k = 1. / wa * bar.0 + 1. / wb * bar.1 + 1. / wc * bar.2;
+    Vec3::new(bar.0 / wa / k, bar.1 / wb / k, bar.2 / wc / k)
+  }
+  pub fn top_barycentric(&self) -> Vec3<f32> {
+    let x = self.pos.x;
+    let y = self.pos.y - 1.;
+    self.barycentric(x, y)
+  }
+  pub fn right_barycentry(&self) -> Vec3<f32> {
+    let x = self.pos.x + 1.;
+    let y = self.pos.y;
+    self.barycentric(x, y)
+  }
+  pub fn coordinate(&self) -> Vec3<f32> {
+    Vec3::new(
+      self.pos.x / self.width * 2. - 1.,
+      self.pos.y / self.height * 2. - 1.,
+      self.pos.z,
+    )
+  }
+}
+
 pub trait Shader<M: crate::model::Model> {
   // 计算顶点在屏幕（渲染结果图像）上的位置
   fn vertext(&mut self, model: &M, face: usize, nth_vert: usize) -> Vec4<f32>;
   // 对于三角形内部的每点调用fragment计算该点处的颜色
-  fn fragment(
-    &self,
-    // 此点坐标
-    pos: Vec3<f32>,
-    // 此点处的质心坐标
-    bar: Vec3<f32>,
-  ) -> Fragment;
+  fn fragment(&self, info: FragmentInfo) -> Fragment;
 }
 
 type Point = Vec4<f32>;
@@ -47,31 +81,36 @@ pub fn super_sampling_offsets(m: u32) -> Vec<(f32, f32)> {
 #[test]
 fn test_supper_sample_offsets() {
   let offsets = super_sampling_offsets(2);
-  println!("{:?}",offsets)
+  println!("{:?}", offsets)
 }
 
 fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
   img: &mut I,
   depth_buff: &mut Vec<f32>,
+  // 三角形的三个顶点，假设坐标在[-1,1]
   a: Vec4<f32>,
   b: Vec4<f32>,
   c: Vec4<f32>,
   shader: &mut S,
-  super_sampling: &Option<Vec<(f32,f32)>>,
+  super_sampling: &Option<Vec<(f32, f32)>>,
 ) {
   let wa = a.w;
   let wb = b.w;
   let wc = c.w;
-  let a = a.to_3d_point();
-  let b = b.to_3d_point();
-  let c = c.to_3d_point();
+  let vp = crate::transform::viewport(img.width() as f32, img.height() as f32);
+  let a = &vp * &a.to_3d_point();
+  let b = &vp * &b.to_3d_point();
+  let c = &vp * &c.to_3d_point();
+  // 映射标准立方体到屏幕空间
+
   let min_x = a.x.min(b.x).min(c.x) as u32;
   let max_x = a.x.max(b.x).max(c.x).min((img.width() - 1) as f32) as u32;
   let min_y = a.y.min(b.y).min(c.y) as u32;
   let max_y = a.y.max(b.y).max(c.y).min((img.height() - 1) as f32) as u32;
-  let sub_pix_offset = [(-0.25, -0.25), (0.75, 0.75), (-0.25, 0.75), (0.25, -0.75)];
+  let width = img.width() as f32;
+  let height = img.height() as f32;
 
-  if let Some(sub_pix_offset)= super_sampling {
+  if let Some(sub_pix_offset) = super_sampling {
     for y in min_y..=max_y {
       for x in min_x..=max_x {
         let mut color = Vec4::default();
@@ -83,7 +122,15 @@ fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
           }
           let p = a * alpha + b * beta + c * gamma;
           let k = 1. / wa * alpha + 1. / wb * beta + 1. / wc * gamma;
-          match shader.fragment(p, Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k)) {
+          let info = FragmentInfo {
+            width,
+            height,
+            z: [wa, wb, wc],
+            vertices: [a, b, c],
+            pos: p,
+            bar: Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k),
+          };
+          match shader.fragment(info) {
             Fragment::Color(c) => {
               color = color + Vec4::new(c.x, c.y, c.z, 1.);
               cnt += 1;
@@ -118,7 +165,16 @@ fn draw_triangle<M: crate::model::Model, S: Shader<M>, I: Image>(
         let k = 1. / wa * alpha + 1. / wb * beta + 1. / wc * gamma;
         if p.z > depth_buff[index] && p.z <= 1.1 && p.z >= -1.1 {
           // 通过Fragment shader 计算每个像素的颜色
-          match shader.fragment(p, Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k)) {
+
+          let info = FragmentInfo {
+            z: [wa, wb, wc],
+            vertices: [a, b, c],
+            pos: p,
+            width,
+            height,
+            bar: Vec3::new(alpha / wa / k, beta / wb / k, gamma / wc / k),
+          };
+          match shader.fragment(info) {
             Fragment::Color(c) => {
               depth_buff[index] = p.z;
               img.set_rgb(x, y, c);
@@ -140,7 +196,7 @@ pub fn render<S: Shader<M>, I: Image, M: crate::model::Model>(
   depth_buff: &mut Vec<f32>,
   shader: &mut S,
   model: &M,
-  super_sampling: u32
+  super_sampling: u32,
 ) {
   let super_sampling = if super_sampling > 1 {
     Some(super_sampling_offsets(super_sampling))
