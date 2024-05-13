@@ -164,14 +164,8 @@ impl<'a, M: Model> pipeline2::Shader<M> for MyShader<'a> {
     &self.mat * Vec4::from_point(&model.vert(face, nth_vert))
   }
 
-  fn fragment(
-    &self,
-    // 此点坐标
-    pos: Vec3<f32>,
-    // 此点处的质心坐标
-    bar: Vec3<f32>,
-  ) -> Fragment {
-    let p = &self.invert * &pos;
+  fn fragment(&self, info: pipeline2::FragmentInfo) -> Fragment {
+    let p =  &self.invert * &info.coordinate();
     Fragment::Color(self.cubemap.get(p))
   }
 }
@@ -234,7 +228,6 @@ fn main() {
       //   Vec3::new(0., 1., 0.),
       //   Vec3::new(0., 0., 0.),
       // ))
-      .viewport(img.width() as f32, img.height() as f32)
       .build();
     pipeline2::render(
       &mut img,

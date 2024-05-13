@@ -95,35 +95,13 @@ impl<M: Model> pipeline2::Shader<M> for MyShader {
     p
   }
 
-  fn fragment(
-    &self,
-    // 此点坐标
-    pos: Vec3<f32>,
-    // 此点处的质心坐标
-    bar: Vec3<f32>,
-  ) -> Fragment {
-    let uv =
-      self.varying_uvs[0] * bar.x + self.varying_uvs[1] * bar.y + self.varying_uvs[2] * bar.z;
+  fn fragment(&self, info: pipeline2::FragmentInfo) -> Fragment {
+    let uv = info.barycentric_interpolate(&self.varying_uvs);
     // 计算相对该点上面的一个点的uv坐标
-    let top = barycentric(
-      self.varying_verts[0],
-      self.varying_verts[1],
-      self.varying_verts[2],
-      pos.x,
-      pos.y - 1.,
-    );
-    let top_uv =
-      self.varying_uvs[0] * top.x + self.varying_uvs[1] * top.y + self.varying_uvs[2] * top.z;
+    let top_uv = util::barycentric_interpolate(&self.varying_uvs, info.top_barycentric());
     // 计算相对该点右边一点的uv坐标
-    let right = barycentric(
-      self.varying_verts[0],
-      self.varying_verts[1],
-      self.varying_verts[2],
-      pos.x + 1.,
-      pos.y,
-    );
-    let right_uv =
-      self.varying_uvs[0] * right.x + self.varying_uvs[1] * right.y + self.varying_uvs[2] * right.z;
+    let right_uv = util::barycentric_interpolate(&self.varying_uvs, info.right_barycentry());
+
     let screen_size = self.screen_size;
 
     // 计算上/右两个点的uv和该点uv坐标之间的距离，取较大的那个作为近似
@@ -158,7 +136,7 @@ fn main() {
           Mipmap::new(util::load_image("./textures/grid1.tga"))
         }
       })
-      .unwrap();
+      .unwrap_or(Mipmap::new(util::load_image("./textures/grid1.tga")));
     let mut depth_buffer = vec![f32::MIN; 600 * 600];
     let model = shape::Plane::new();
     let mat = Transform::new()
@@ -170,7 +148,6 @@ fn main() {
         Vec3::new(0., 0., 0.),
       )
       .perspective(75., 1., -0.1, -10000.)
-      .viewport(img.width() as f32, img.height() as f32)
       .build();
     let invert = mat.invert();
     pipeline2::render(
