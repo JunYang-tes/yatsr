@@ -71,25 +71,25 @@ e1=a*T + b*B ，e2=c*T + d*B
 
 其中$`B^T$`表示行向量，两边乘以矩阵的逆：
 
-$$
-
-\begin{bmatrix}{}
+```math
+\begin{bmatrix}
 a & b \\
 c & d \\
 \end{bmatrix}^{-1}
-\begin{pmatrix}{}
+\begin{pmatrix}
 e1 \\
 e2
 \end{pmatrix}
 =
-\begin{pmatrix}{}
+\begin{pmatrix}
 T^T \\
 B^T
 \end{pmatrix}
-$$
+```
 
 二阶矩阵的逆矩阵为：主对角线交换位置，副对角线上变号，再除以其行列式的值：
-$$
+
+```math
 \begin{bmatrix}{}
 a & b \\
 c & d \\
@@ -99,15 +99,14 @@ c & d \\
 d & -b \\
 -c & a \\
 \end{bmatrix}\frac{1}{ad-cb}
-
-$$
+```
 
 这样我们只需要找到使ad-cb 不为0的a、b、c、d就可以计算出T了。a、b、c、d如何取，只需要生成纹理和使用纹理双方约定一致即可。
 
 一种常见的做法就是取uv坐标之间的差值来做a、b、c、d：
 ![](./uv-space.png)
 
-$$
+```math
 e1= (u2-u1)*U+(v2-v1)*V \\
 e2= (u3-u1)*U + (v3-v1)*V \\
 
@@ -142,12 +141,11 @@ c & d
 V^T \\
 U^T
 \end{pmatrix}\\
-
-$$
+```
 
 注意，这里的e1和e2和前面的e1、e2不是同一个东西。$`\begin{pmatrix} a & b \\ c & d \end{pmatrix}`$ 一定是可逆的。因为假如它不可逆的话，那么其两行就是线性相关的：
-$$
 
+```math
 \begin{bmatrix}
 a & b \\
 c & d 
@@ -173,7 +171,7 @@ naV^T+nbU^T \\
 e1 \\ 
 e2
 \end{pmatrix}
-$$
+```
 
 说明e1和e2也而线性相关的，而e1与e2作为三角形的两条边，显示是线性无关的，所以$`\begin{pmatrix} a & b \\ c & d \end{pmatrix}`$ 一定是可逆的.
 
@@ -196,7 +194,9 @@ $$
 **切空间法向量纹理图为啥偏蓝**
 
 上面所用的纹理图片如下,整体是偏蓝的：
+
 ![](./nm.png)
 
 这是因为图片里存的是对原法向量的扰动，即下面的a,b,c. 对于没有扰动的情况：a=0,b=0,c=1, 映射成rgb即为(0,0,0.5) 是蓝色。扰动比较轻微的时候，a,b较小，c较接近1,rgb也偏蓝。
+
 ![](./f2.svg)
