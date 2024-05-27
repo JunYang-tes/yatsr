@@ -48,6 +48,10 @@
 
 [各向异性过滤](./examples/3.texture/5.anisotropic/README.md)
 
+[立方体贴图](./examples/3.texture/6.cubemap/README.md)
+
+[凹凸贴图](./examples/3.texture/7.bumpmap/README.md)
+
 ## 参考资料库
 
 Games 101
