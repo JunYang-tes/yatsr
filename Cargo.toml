@@ -101,6 +101,18 @@ path="./examples/3.texture/5.anisotropic/unconstrained.rs"
 [[example]]
 name="texture_cubemap"
 path="./examples/3.texture/6.cubemap/main.rs"
+[[example]]
+name="texture_bumpmap_a"
+path="./examples/3.texture/7.bumpmap/a.rs"
+[[example]]
+name="texture_bumpmap_normal"
+path="./examples/3.texture/7.bumpmap/normal.rs"
+[[example]]
+name="texture_bumpmap_tangent"
+path="./examples/3.texture/7.bumpmap/tangent.rs"
+[[example]]
+name="texture_bumpmap_tangent_trans"
+path="./examples/3.texture/7.bumpmap/tangent_trans.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
